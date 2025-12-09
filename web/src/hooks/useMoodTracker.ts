@@ -52,7 +52,7 @@ export function useMoodTracker(userId: string | undefined) {
 
       if (fetchError) throw fetchError
       
-      const today = data?.find((m) => isToday(new Date(m.mood_date))) || null
+      const today = data?.find((m: any) => isToday(new Date(m.mood_date))) || null
       setTodayMood(today)
       setRecentMoods(data || [])
       setError(null)
@@ -77,7 +77,7 @@ export function useMoodTracker(userId: string | undefined) {
           mood,
           note,
           mood_date: today,
-        }, {
+        } as any, {
           onConflict: 'user_id,mood_date',
         })
         .select()

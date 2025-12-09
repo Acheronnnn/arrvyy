@@ -67,7 +67,7 @@ export function useMemories(userId: string | undefined) {
         .insert({
           ...memory,
           user_id: userId,
-        })
+        } as any)
         .select()
         .single()
 
