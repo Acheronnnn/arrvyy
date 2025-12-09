@@ -99,7 +99,10 @@ export interface Database {
           sender_id: string
           receiver_id: string
           content: string
+          is_secret: boolean
+          reveal_at: string | null
           is_read: boolean
+          color: string
           created_at: string
         }
         Insert: {
@@ -107,7 +110,10 @@ export interface Database {
           sender_id: string
           receiver_id: string
           content: string
+          is_secret?: boolean
+          reveal_at?: string | null
           is_read?: boolean
+          color?: string
           created_at?: string
         }
         Update: {
@@ -115,7 +121,10 @@ export interface Database {
           sender_id?: string
           receiver_id?: string
           content?: string
+          is_secret?: boolean
+          reveal_at?: string | null
           is_read?: boolean
+          color?: string
           created_at?: string
         }
       }
