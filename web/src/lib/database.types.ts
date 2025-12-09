@@ -186,6 +186,7 @@ export interface Database {
           user_id: string
           title: string
           date: string
+          type: 'anniversary' | 'birthday' | 'custom' | 'milestone'
           description: string | null
           color: string
           is_pinned: boolean
@@ -197,6 +198,7 @@ export interface Database {
           user_id: string
           title: string
           date: string
+          type: 'anniversary' | 'birthday' | 'custom' | 'milestone'
           description?: string | null
           color?: string
           is_pinned?: boolean
@@ -208,6 +210,7 @@ export interface Database {
           user_id?: string
           title?: string
           date?: string
+          type?: 'anniversary' | 'birthday' | 'custom' | 'milestone'
           description?: string | null
           color?: string
           is_pinned?: boolean

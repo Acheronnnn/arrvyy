@@ -67,7 +67,7 @@ export function useLoveNotes(userId: string | undefined) {
         .insert({
           ...note,
           sender_id: userId,
-        })
+        } as any)
         .select()
         .single()
 
