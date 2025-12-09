@@ -13,7 +13,7 @@ interface Song {
 export function MusicCard() {
   const [currentSong, setCurrentSong] = useState<Song | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0)
+  const [currentTime] = useState(0)
   const [showLyrics, setShowLyrics] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 

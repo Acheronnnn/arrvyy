@@ -85,7 +85,7 @@ export function useImportantDates(userId: string | undefined) {
     try {
       const { data, error: updateError } = await supabase
         .from('important_dates')
-        .update(updates as any)
+        .update(updates as any as never)
         .eq('id', id)
         .select()
         .single()

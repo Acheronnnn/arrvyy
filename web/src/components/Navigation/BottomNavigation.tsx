@@ -112,7 +112,7 @@ export function BottomNavigation({ activeItem, onItemClick }: BottomNavigationPr
       {/* Content */}
       <div className="relative max-w-md mx-auto px-2 py-1.5">
         <div className="flex items-center justify-around">
-          {navigationItems.map((item, index) => {
+          {navigationItems.map((item) => {
             const Icon = item.icon
             const isActive = activeItem === item.id
 

@@ -38,7 +38,7 @@ export function UserSettingsModal({ isOpen, onClose, onUpdate }: UserSettingsMod
           anniversary_date: anniversaryDate || null,
           birthday: birthday || null,
           partner_birthday: partnerBirthday || null,
-        })
+        } as any)
         .eq('id', user.id)
 
       if (error) throw error

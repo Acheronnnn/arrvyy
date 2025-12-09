@@ -201,7 +201,7 @@ export function useAuth() {
     if (error) throw error
   }
 
-  const verifyPasswordResetOTP = async (email: string, token: string) => {
+  const verifyPasswordResetOTP = async (_email: string, token: string) => {
     // Untuk password reset, Supabase menggunakan magic link dengan hash token
     // Token dari email template adalah hash token panjang, bukan 6 digit OTP
     // Tapi kita bisa coba verify jika user input token dari email
@@ -239,7 +239,6 @@ export function useAuth() {
       
       if (otpVerified && otpEmail && otpCode) {
         // Reset password menggunakan Edge Function
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
         const { data, error } = await supabase.functions.invoke('reset-password-otp', {
           body: {
             email: otpEmail,

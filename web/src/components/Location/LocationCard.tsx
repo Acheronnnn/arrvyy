@@ -11,7 +11,7 @@ interface Location {
 }
 
 export function LocationCard() {
-  const [locations, setLocations] = useState<Location[]>([])
+  const [locations] = useState<Location[]>([])
   const [showAddForm, setShowAddForm] = useState(false)
 
   // Sample location (akan di-fetch dari database nanti)

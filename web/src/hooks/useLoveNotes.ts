@@ -84,7 +84,7 @@ export function useLoveNotes(userId: string | undefined) {
     try {
       const { error: updateError } = await supabase
         .from('love_notes')
-        .update({ is_read: true } as any)
+        .update({ is_read: true } as any as never)
         .eq('id', id)
 
       if (updateError) throw updateError
