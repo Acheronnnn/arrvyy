@@ -77,7 +77,22 @@ export function useAuth() {
     return data
   }
 
+  const checkUserCount = async (): Promise<number> => {
+    const { count, error } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+    
+    if (error) throw error
+    return count || 0
+  }
+
   const signUp = async (email: string, password: string, name: string) => {
+    // Check jumlah user sebelum register (maksimal 2 user)
+    const userCount = await checkUserCount()
+    if (userCount >= 2) {
+      throw new Error('Aplikasi ini hanya untuk 2 user. Sudah mencapai batas maksimal.')
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -85,7 +100,7 @@ export function useAuth() {
         data: {
           name: name,
         },
-        emailRedirectTo: `${window.location.origin}/chat`,
+        emailRedirectTo: `${window.location.origin}/verify-otp`,
       },
     })
     if (error) throw error
@@ -114,6 +129,63 @@ export function useAuth() {
     return data
   }
 
+  const verifyOTP = async (email: string, token: string) => {
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'email',
+    })
+    if (error) throw error
+    return data
+  }
+
+  const resendOTP = async (email: string) => {
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+    })
+    if (error) throw error
+  }
+
+  const deleteAccount = async () => {
+    if (!user) throw new Error('Tidak ada user yang login')
+    
+    // Hapus semua pesan user
+    const { error: messagesError } = await (supabase.from('messages') as any)
+      .delete()
+      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+    
+    if (messagesError) throw messagesError
+    
+    // Hapus user profile
+    const { error: userError } = await (supabase.from('users') as any)
+      .delete()
+      .eq('id', user.id)
+    
+    if (userError) throw userError
+    
+    // Sign out (auth user tetap ada di Supabase, tapi profile sudah dihapus)
+    await signOut()
+  }
+
+  const resetChat = async () => {
+    if (!user) throw new Error('Tidak ada user yang login')
+    
+    // Hapus semua pesan antara current user dan other user
+    const { data: otherUser } = await supabase
+      .from('users')
+      .select('*')
+      .neq('id', user.id)
+      .limit(1)
+      .single()
+    
+    if (otherUser) {
+      await (supabase.from('messages') as any)
+        .delete()
+        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${otherUser.id}),and(sender_id.eq.${otherUser.id},receiver_id.eq.${user.id})`)
+    }
+  }
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
@@ -126,6 +198,11 @@ export function useAuth() {
     signIn,
     signUp,
     signOut,
+    deleteAccount,
+    resetChat,
+    checkUserCount,
+    verifyOTP,
+    resendOTP,
   }
 }
 

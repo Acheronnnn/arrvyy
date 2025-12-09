@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
 import { Login } from './pages/Login'
 import { Chat } from './pages/Chat'
+import { ForgotPassword } from './pages/ForgotPassword'
+import { OTPVerification } from './pages/OTPVerification'
 import { Loader2 } from 'lucide-react'
 import { supabase } from './lib/supabase'
 
@@ -63,6 +65,9 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-otp" element={<OTPVerification />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route
           path="/chat"
