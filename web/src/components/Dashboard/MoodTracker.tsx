@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Smile, Frown, Heart, Zap, Wind, Coffee, AlertCircle } from 'lucide-react'
 import { format, isToday } from 'date-fns'
