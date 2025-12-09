@@ -2,14 +2,14 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Mail, ArrowLeft, Loader2 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/hooks/useAuth'
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { sendPasswordResetOTP } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -17,57 +17,19 @@ export function ForgotPasswordForm() {
     setLoading(true)
 
     try {
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      })
-
-      if (resetError) throw resetError
-
-      setSuccess(true)
+      // Kirim OTP untuk password reset (bukan link)
+      await sendPasswordResetOTP(email)
+      
+      // Save email untuk OTP verification
+      localStorage.setItem('arrvyy_reset_email', email)
+      
+      // Redirect ke halaman input OTP
+      navigate(`/reset-password-otp?email=${encodeURIComponent(email)}`)
     } catch (err: any) {
-      setError(err.message || 'Gagal mengirim email reset password. Coba lagi.')
+      setError(err.message || 'Gagal mengirim kode OTP. Coba lagi.')
     } finally {
       setLoading(false)
     }
-  }
-
-  if (success) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <div className="p-4">
-          <button
-            onClick={() => navigate('/login')}
-            className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-gray-700" />
-          </button>
-        </div>
-
-        <div className="flex-1 flex items-center justify-center px-4 pb-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md text-center"
-          >
-            <div className="bg-white rounded-2xl shadow-lg p-8">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Mail className="w-8 h-8 text-green-600" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email</h2>
-              <p className="text-gray-600 mb-6">
-                Kami telah mengirim link reset password ke <strong>{email}</strong>
-              </p>
-              <button
-                onClick={() => navigate('/login')}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-xl font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-200"
-              >
-                Kembali ke Login
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -92,7 +54,7 @@ export function ForgotPasswordForm() {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Forgot Password</h1>
             <p className="text-gray-600 text-sm">
-              Enter your email address to receive a reset link and regain access to your account.
+              Enter your email address to receive an OTP code and reset your password.
             </p>
           </div>
 

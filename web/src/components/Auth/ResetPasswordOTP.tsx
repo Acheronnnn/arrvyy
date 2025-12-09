@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, Loader2, Mail } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 
-export function OTPVerification() {
+export function ResetPasswordOTP() {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -14,20 +14,20 @@ export function OTPVerification() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { verifyOTP, resendOTP } = useAuth()
+  const { verifyPasswordResetOTP, resendPasswordResetOTP } = useAuth()
 
   useEffect(() => {
     // Get email from URL params or localStorage
     const emailParam = searchParams.get('email')
-    const savedEmail = localStorage.getItem('arrvyy_verify_email')
+    const savedEmail = localStorage.getItem('arrvyy_reset_email')
     
     if (emailParam) {
       setEmail(emailParam)
-      localStorage.setItem('arrvyy_verify_email', emailParam)
+      localStorage.setItem('arrvyy_reset_email', emailParam)
     } else if (savedEmail) {
       setEmail(savedEmail)
     } else {
-      navigate('/register')
+      navigate('/forgot-password')
     }
   }, [searchParams, navigate])
 
@@ -69,6 +69,29 @@ export function OTPVerification() {
     }
   }
 
+  useEffect(() => {
+    // Cek apakah ada token di URL hash dari email link
+    const hashParams = new URLSearchParams(window.location.hash.substring(1))
+    const accessToken = hashParams.get('access_token')
+    const refreshToken = hashParams.get('refresh_token')
+    const type = hashParams.get('type')
+    
+    if (accessToken && refreshToken && type === 'recovery') {
+      // User sudah klik link dari email, set session dan redirect
+      const setSession = async () => {
+        const { supabase } = await import('@/lib/supabase')
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        })
+        if (!error) {
+          navigate('/reset-password')
+        }
+      }
+      setSession()
+    }
+  }, [navigate])
+
   const handleVerify = async () => {
     const otpCode = otp.join('')
     if (otpCode.length !== 6) {
@@ -80,13 +103,33 @@ export function OTPVerification() {
     setLoading(true)
 
     try {
-      // Verify OTP dengan Supabase (type: signup)
-      // OTP code dari email adalah 6 digit pertama dari token
-      await verifyOTP(email, otpCode)
-
-      // Success - redirect to chat
-      localStorage.removeItem('arrvyy_verify_email')
-      navigate('/home')
+      // Cek apakah ada token di URL hash (user klik link dari email)
+      const hashParams = new URLSearchParams(window.location.hash.substring(1))
+      const accessToken = hashParams.get('access_token')
+      const refreshToken = hashParams.get('refresh_token')
+      
+      if (accessToken && refreshToken) {
+        // User sudah klik link, set session dan redirect
+        const { supabase } = await import('@/lib/supabase')
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        })
+        if (error) throw error
+        
+        navigate('/reset-password')
+        return
+      }
+      
+      // Jika tidak ada hash, user input OTP code
+      // Kita simpan flag bahwa OTP sudah verified
+      // Lalu redirect ke reset password
+      localStorage.setItem('arrvyy_otp_verified', 'true')
+      localStorage.setItem('arrvyy_otp_email', email)
+      localStorage.setItem('arrvyy_otp_code', otpCode)
+      
+      // Redirect ke reset password
+      navigate('/reset-password')
     } catch (err: any) {
       console.error('OTP verification error:', err)
       setError(err.message || 'Kode OTP tidak valid. Coba lagi.')
@@ -104,8 +147,8 @@ export function OTPVerification() {
     setError('')
 
     try {
-      // Resend OTP
-      await resendOTP(email)
+      // Resend OTP untuk password reset
+      await resendPasswordResetOTP(email)
 
       setCountdown(60) // 60 seconds countdown
     } catch (err: any) {
@@ -120,7 +163,7 @@ export function OTPVerification() {
       {/* Back Button */}
       <div className="p-4">
         <button
-          onClick={() => navigate('/register')}
+          onClick={() => navigate('/forgot-password')}
           className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
         >
           <ArrowLeft className="w-5 h-5 text-gray-700" />
@@ -138,9 +181,9 @@ export function OTPVerification() {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Mail className="w-8 h-8 text-green-600" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Verify Your Email</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Verify OTP</h1>
             <p className="text-gray-600 text-sm mb-2">
-              Kami telah mengirim kode verifikasi ke
+              Kami telah mengirim kode OTP ke
             </p>
             <p className="text-gray-900 font-semibold">{email}</p>
           </div>

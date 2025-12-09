@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@/types'
+import { getAccessibleUrl } from '@/lib/getAccessibleUrl'
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
@@ -9,12 +10,33 @@ export function useAuth() {
   const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null)
 
   useEffect(() => {
+    let mounted = true
+    let timeoutId: NodeJS.Timeout | null = null
+
+    // Set timeout untuk memastikan loading tidak stuck
+    timeoutId = setTimeout(() => {
+      if (mounted) {
+        console.warn('Auth check timeout, setting loading to false')
+        setLoading(false)
+      }
+    }, 5000) // 5 detik timeout
+
     // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return
+      
+      if (timeoutId) clearTimeout(timeoutId)
+      
       setSupabaseUser(session?.user ?? null)
       if (session?.user) {
         fetchUserProfile(session.user.id)
       } else {
+        setLoading(false)
+      }
+    }).catch((error) => {
+      console.error('Error getting session:', error)
+      if (mounted) {
+        if (timeoutId) clearTimeout(timeoutId)
         setLoading(false)
       }
     })
@@ -22,31 +44,50 @@ export function useAuth() {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return
+      
+      console.log('Auth state changed:', event, session?.user?.id)
+      if (timeoutId) clearTimeout(timeoutId)
+      
       setSupabaseUser(session?.user ?? null)
       if (session?.user) {
         fetchUserProfile(session.user.id)
       } else {
+        // Clear state when signed out
         setUser(null)
+        setSupabaseUser(null)
         setLoading(false)
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      if (timeoutId) clearTimeout(timeoutId)
+      subscription.unsubscribe()
+    }
   }, [])
 
   const fetchUserProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      // Set timeout untuk fetch profile
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Fetch profile timeout')), 3000)
+      })
+
+      const fetchPromise = supabase
         .from('users')
         .select('*')
         .eq('id', userId)
         .single()
 
+      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any
+
       if (error) throw error
       setUser(data as User)
     } catch (error) {
       console.error('Error fetching user profile:', error)
+      // Tetap set loading false meskipun error
     } finally {
       setLoading(false)
     }
@@ -93,6 +134,8 @@ export function useAuth() {
       throw new Error('Aplikasi ini hanya untuk 2 user. Sudah mencapai batas maksimal.')
     }
 
+    // Signup dengan OTP (bukan magic link)
+    // Supabase akan kirim OTP code via email jika email template sudah di-setup
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -100,7 +143,8 @@ export function useAuth() {
         data: {
           name: name,
         },
-        emailRedirectTo: `${window.location.origin}/verify-otp`,
+        // emailRedirectTo tetap diperlukan untuk fallback, tapi user akan pakai OTP code
+        emailRedirectTo: `${getAccessibleUrl()}/verify-otp`,
       },
     })
     if (error) throw error
@@ -133,7 +177,7 @@ export function useAuth() {
     const { data, error } = await supabase.auth.verifyOtp({
       email,
       token,
-      type: 'email',
+      type: 'signup',
     })
     if (error) throw error
     return data
@@ -145,6 +189,101 @@ export function useAuth() {
       email,
     })
     if (error) throw error
+  }
+
+  const sendPasswordResetOTP = async (email: string) => {
+    // Supabase tidak support type 'recovery' untuk OTP
+    // Kita pakai resetPasswordForEmail yang akan kirim magic link
+    // Link akan redirect ke /reset-password-otp dengan hash token
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${getAccessibleUrl()}/reset-password-otp`,
+    })
+    if (error) throw error
+  }
+
+  const verifyPasswordResetOTP = async (email: string, token: string) => {
+    // Untuk password reset, Supabase menggunakan magic link dengan hash token
+    // Token dari email template adalah hash token panjang, bukan 6 digit OTP
+    // Tapi kita bisa coba verify jika user input token dari email
+    
+    // Cek apakah token adalah hash token (panjang) atau OTP code (6 digit)
+    if (token.length === 6) {
+      // Ini adalah OTP code dari email template
+      // Untuk password reset, kita perlu extract token dari URL hash
+      // Atau user harus klik link dari email
+      throw new Error('Untuk reset password, silakan klik link dari email. OTP code hanya untuk referensi.')
+    }
+    
+    // Jika token panjang, coba verify sebagai hash token
+    // Tapi untuk password reset, token harus dari URL hash, bukan dari input manual
+    throw new Error('Token tidak valid. Silakan klik link dari email untuk reset password.')
+  }
+
+  const resendPasswordResetOTP = async (email: string) => {
+    // Resend password reset email
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${getAccessibleUrl()}/reset-password-otp`,
+    })
+    if (error) throw error
+  }
+
+  const updatePassword = async (newPassword: string) => {
+    // Cek apakah ada session
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (!session) {
+      // Tidak ada session, coba reset password dengan OTP menggunakan Edge Function
+      const otpVerified = localStorage.getItem('arrvyy_otp_verified')
+      const otpEmail = localStorage.getItem('arrvyy_otp_email')
+      const otpCode = localStorage.getItem('arrvyy_otp_code')
+      
+      if (otpVerified && otpEmail && otpCode) {
+        // Reset password menggunakan Edge Function
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+        const { data, error } = await supabase.functions.invoke('reset-password-otp', {
+          body: {
+            email: otpEmail,
+            otpCode: otpCode,
+            newPassword: newPassword,
+          },
+        })
+        
+        if (error) throw error
+        if (data?.error) throw new Error(data.error)
+        
+        // Clear OTP data
+        localStorage.removeItem('arrvyy_otp_verified')
+        localStorage.removeItem('arrvyy_otp_email')
+        localStorage.removeItem('arrvyy_otp_code')
+        
+        return
+      }
+      
+      throw new Error('Tidak ada session atau OTP verified. Silakan request reset password lagi.')
+    }
+
+    // Ada session, update password langsung
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    })
+    if (error) throw error
+  }
+
+  const signInWithOAuth = async (provider: 'google' | 'facebook') => {
+    // Check jumlah user sebelum OAuth (maksimal 2 user)
+    const userCount = await checkUserCount()
+    if (userCount >= 2) {
+      throw new Error('Aplikasi ini hanya untuk 2 user. Sudah mencapai batas maksimal.')
+    }
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${getAccessibleUrl()}/auth/callback`,
+      },
+    })
+    if (error) throw error
+    return data
   }
 
   const deleteAccount = async () => {
@@ -180,15 +319,58 @@ export function useAuth() {
       .single()
     
     if (otherUser) {
-      await (supabase.from('messages') as any)
+      const otherUserId = (otherUser as User).id
+      const { error } = await (supabase.from('messages') as any)
         .delete()
-        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${otherUser.id}),and(sender_id.eq.${otherUser.id},receiver_id.eq.${user.id})`)
+        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${user.id})`)
+      
+      if (error) throw error
     }
   }
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) throw error
+    // Clear state first (optimistic update)
+    setUser(null)
+    setSupabaseUser(null)
+    
+    // Clear all localStorage items
+    localStorage.removeItem('arrvyy_remember_email')
+    localStorage.removeItem('arrvyy_verify_email')
+    localStorage.removeItem('arrvyy_otp_verified')
+    localStorage.removeItem('arrvyy_otp_email')
+    localStorage.removeItem('arrvyy_otp_code')
+    
+    // Clear sessionStorage
+    sessionStorage.clear()
+    
+    // Clear Supabase session storage (Chrome specific issue)
+    try {
+      // Clear Supabase auth storage
+      const supabaseStorageKeys = Object.keys(localStorage).filter(key => 
+        key.startsWith('sb-') || key.includes('supabase')
+      )
+      supabaseStorageKeys.forEach(key => localStorage.removeItem(key))
+      
+      // Also clear from sessionStorage
+      const supabaseSessionKeys = Object.keys(sessionStorage).filter(key => 
+        key.startsWith('sb-') || key.includes('supabase')
+      )
+      supabaseSessionKeys.forEach(key => sessionStorage.removeItem(key))
+    } catch (e) {
+      console.warn('Error clearing Supabase storage:', e)
+    }
+    
+    // Then try to sign out from Supabase (non-blocking)
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.warn('Supabase signOut error (non-critical):', error)
+        // Don't throw - we already cleared local state
+      }
+    } catch (error) {
+      console.error('SignOut error:', error)
+      // Don't throw - allow logout to proceed
+    }
   }
 
   return {
@@ -203,6 +385,11 @@ export function useAuth() {
     checkUserCount,
     verifyOTP,
     resendOTP,
+    signInWithOAuth,
+    sendPasswordResetOTP,
+    verifyPasswordResetOTP,
+    resendPasswordResetOTP,
+    updatePassword,
   }
 }
 

@@ -1,6 +1,6 @@
 import { useLocation } from 'react-router-dom'
-import { LoginForm } from '@/components/Auth/LoginForm'
-import { RegisterForm } from '@/components/Auth/RegisterForm'
+import { LoginCard } from '@/components/Auth/LoginCard'
+import { RegisterCard } from '@/components/Auth/RegisterCard'
 import { SupabaseConfigWarning } from '@/components/SupabaseConfigWarning'
 
 export function Login() {
@@ -8,9 +8,13 @@ export function Login() {
   const isRegister = location.pathname === '/register'
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <SupabaseConfigWarning />
-      {isRegister ? <RegisterForm /> : <LoginForm />}
+      {isRegister ? (
+        <RegisterCard />
+      ) : (
+        <LoginCard />
+      )}
     </div>
   )
 }

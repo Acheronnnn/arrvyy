@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/hooks/useAuth'
 import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react'
+import { FacebookIcon } from '@/components/Icons/FacebookIcon'
+import { GoogleIcon } from '@/components/Icons/GoogleIcon'
 
 export function LoginForm() {
   const [email, setEmail] = useState('')
@@ -11,7 +13,8 @@ export function LoginForm() {
   const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { signIn, user } = useAuth()
+  const [oauthLoading, setOauthLoading] = useState<'google' | 'facebook' | null>(null)
+  const { signIn, signInWithOAuth, user } = useAuth()
   const navigate = useNavigate()
 
   // Load remember me dari localStorage
@@ -26,7 +29,7 @@ export function LoginForm() {
   // Redirect jika sudah login
   useEffect(() => {
     if (user) {
-      navigate('/chat', { replace: true })
+      navigate('/home', { replace: true })
     }
   }, [user, navigate])
 
@@ -186,14 +189,47 @@ export function LoginForm() {
               </div>
             </div>
             <div className="mt-6 flex justify-center space-x-4">
-              <button className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">
-                <span className="text-gray-700 font-semibold">f</span>
+              <button
+                onClick={async () => {
+                  setOauthLoading('facebook')
+                  setError('')
+                  try {
+                    await signInWithOAuth('facebook')
+                  } catch (err: any) {
+                    setError(err.message || 'Gagal login dengan Facebook')
+                    setOauthLoading(null)
+                  }
+                }}
+                disabled={oauthLoading !== null}
+                className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+                title="Login dengan Facebook"
+              >
+                {oauthLoading === 'facebook' ? (
+                  <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <FacebookIcon className="w-6 h-6" />
+                )}
               </button>
-              <button className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">
-                <span className="text-gray-700 font-semibold">G</span>
-              </button>
-              <button className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">
-                <span className="text-gray-700 font-semibold">🍎</span>
+              <button
+                onClick={async () => {
+                  setOauthLoading('google')
+                  setError('')
+                  try {
+                    await signInWithOAuth('google')
+                  } catch (err: any) {
+                    setError(err.message || 'Gagal login dengan Google')
+                    setOauthLoading(null)
+                  }
+                }}
+                disabled={oauthLoading !== null}
+                className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+                title="Login dengan Google"
+              >
+                {oauthLoading === 'google' ? (
+                  <div className="w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <GoogleIcon className="w-6 h-6" />
+                )}
               </button>
             </div>
           </div>
