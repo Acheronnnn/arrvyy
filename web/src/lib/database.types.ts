@@ -23,6 +23,8 @@ export interface Database {
           anniversary_date: string | null
           partner_id: string | null
           created_at: string
+          bio: string | null
+          pronouns: string | null
         }
         Insert: {
           id: string
@@ -34,6 +36,8 @@ export interface Database {
           anniversary_date?: string | null
           partner_id?: string | null
           created_at?: string
+          bio?: string | null
+          pronouns?: string | null
         }
         Update: {
           id?: string
@@ -45,6 +49,8 @@ export interface Database {
           anniversary_date?: string | null
           partner_id?: string | null
           created_at?: string
+          bio?: string | null
+          pronouns?: string | null
         }
       }
       messages: {

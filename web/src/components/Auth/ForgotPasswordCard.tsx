@@ -33,7 +33,7 @@ export function ForgotPasswordCard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-100 to-purple-200 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50 relative overflow-hidden">
       {/* Background specks effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {Array.from({ length: 50 }).map((_, i) => (

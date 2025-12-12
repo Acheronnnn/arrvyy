@@ -15,8 +15,9 @@ export function useLoveNotes(userId: string | undefined) {
 
     fetchNotes()
     
-    const subscription = supabase
-      .channel('love_notes_changes')
+    // Subscribe to both sender and receiver changes
+    const subscription1 = supabase
+      .channel('love_notes_receiver_changes')
       .on(
         'postgres_changes',
         {
@@ -25,14 +26,33 @@ export function useLoveNotes(userId: string | undefined) {
           table: 'love_notes',
           filter: `receiver_id=eq.${userId}`,
         },
-        () => {
+        (payload) => {
+          console.log('🔄 Realtime love note change (receiver):', payload.eventType, payload.new?.id || payload.old?.id)
+          fetchNotes()
+        }
+      )
+      .subscribe()
+
+    const subscription2 = supabase
+      .channel('love_notes_sender_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'love_notes',
+          filter: `sender_id=eq.${userId}`,
+        },
+        (payload) => {
+          console.log('🔄 Realtime love note change (sender):', payload.eventType, payload.new?.id || payload.old?.id)
           fetchNotes()
         }
       )
       .subscribe()
 
     return () => {
-      subscription.unsubscribe()
+      subscription1.unsubscribe()
+      subscription2.unsubscribe()
     }
   }, [userId])
 
@@ -72,7 +92,18 @@ export function useLoveNotes(userId: string | undefined) {
         .single()
 
       if (insertError) throw insertError
-      setNotes([data, ...notes])
+      
+      // Use functional update to ensure we have latest state
+      setNotes((prev) => {
+        console.log('✅ Adding love note to state:', data.id)
+        return [data, ...prev]
+      })
+      
+      // Also refetch to ensure consistency
+      setTimeout(() => {
+        fetchNotes()
+      }, 500)
+      
       return data
     } catch (err: any) {
       console.error('Error adding love note:', err)
@@ -88,9 +119,50 @@ export function useLoveNotes(userId: string | undefined) {
         .eq('id', id)
 
       if (updateError) throw updateError
-      setNotes(notes.map((n) => (n.id === id ? { ...n, is_read: true } : n)))
+      setNotes((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)))
     } catch (err: any) {
       console.error('Error marking note as read:', err)
+      throw err
+    }
+  }
+
+  const deleteNote = async (id: string) => {
+    try {
+      console.log('🗑️ deleteNote called with id:', id)
+      console.log('🗑️ Current notes count:', notes.length)
+      
+      // Optimistic update first
+      setNotes((prev) => {
+        const updated = prev.filter((n) => n.id !== id)
+        console.log('✅ Optimistic update - remaining notes:', updated.length)
+        return updated
+      })
+      
+      // Then delete from database
+      const { data, error: deleteError } = await supabase
+        .from('love_notes')
+        .delete()
+        .eq('id', id)
+        .select()
+
+      console.log('🗑️ Delete response:', { data, error: deleteError })
+
+      if (deleteError) {
+        console.error('❌ Delete error:', deleteError)
+        // Revert optimistic update on error
+        fetchNotes()
+        throw deleteError
+      }
+      
+      // Refetch to ensure consistency (realtime might not fire immediately)
+      setTimeout(() => {
+        console.log('🔄 Refetching notes after delete...')
+        fetchNotes()
+      }, 500)
+    } catch (err: any) {
+      console.error('❌ Error deleting love note:', err)
+      // Revert on error
+      fetchNotes()
       throw err
     }
   }
@@ -101,6 +173,7 @@ export function useLoveNotes(userId: string | undefined) {
     error,
     addNote,
     markAsRead,
+    deleteNote,
     refetch: fetchNotes,
   }
 }

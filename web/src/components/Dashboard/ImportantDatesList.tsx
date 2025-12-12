@@ -1,26 +1,38 @@
-import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Pin, PinOff, Plus, Calendar, Heart, Cake, Star, X } from 'lucide-react'
+import { Pin, PinOff, Calendar, Heart, Cake, Star, X } from 'lucide-react'
 import { format, differenceInDays, isPast, addYears } from 'date-fns'
 import type { ImportantDate } from '@/types'
 
 interface ImportantDatesListProps {
   dates: ImportantDate[]
+  currentMonth?: Date
   onTogglePin: (id: string) => void
   onDelete: (id: string) => void
-  onAdd: () => void
+  onDateClick?: (date: ImportantDate) => void
 }
 
 export function ImportantDatesList({
   dates,
+  currentMonth,
   onTogglePin,
   onDelete,
-  onAdd,
+  onDateClick,
 }: ImportantDatesListProps) {
-  const pinnedDates = dates.filter((d) => d.is_pinned).sort((a, b) => 
+  // Filter dates berdasarkan currentMonth jika ada
+  const filteredDates = currentMonth
+    ? dates.filter((d) => {
+        const date = new Date(d.date)
+        return (
+          date.getMonth() === currentMonth.getMonth() &&
+          date.getFullYear() === currentMonth.getFullYear()
+        )
+      })
+    : dates
+
+  const pinnedDates = filteredDates.filter((d) => d.is_pinned).sort((a, b) => 
     new Date(a.date).getTime() - new Date(b.date).getTime()
   )
-  const unpinnedDates = dates.filter((d) => !d.is_pinned).sort((a, b) => 
+  const unpinnedDates = filteredDates.filter((d) => !d.is_pinned).sort((a, b) => 
     new Date(a.date).getTime() - new Date(b.date).getTime()
   )
 
@@ -65,7 +77,8 @@ export function ImportantDatesList({
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: 20 }}
-        className="p-3 rounded-xl bg-white/80 border border-white/50 flex items-center justify-between hover:shadow-md transition-shadow"
+        onClick={() => onDateClick?.(date)}
+        className="p-3 rounded-xl bg-white/80 border border-white/50 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer"
       >
         <div className="flex items-center space-x-3 flex-1">
           <div
@@ -89,7 +102,7 @@ export function ImportantDatesList({
             title={date.is_pinned ? 'Unpin' : 'Pin'}
           >
             {date.is_pinned ? (
-              <Pin className="w-4 h-4 text-pink-600" />
+              <Pin className="w-4 h-4 text-sky-600" />
             ) : (
               <PinOff className="w-4 h-4 text-gray-600" />
             )}
@@ -108,20 +121,11 @@ export function ImportantDatesList({
 
   return (
     <div className="space-y-4">
-      {/* Add Button */}
-      <button
-        onClick={onAdd}
-        className="w-full p-3 rounded-xl bg-gradient-to-r from-pink-100 to-purple-100 border border-white/50 hover:shadow-md transition-all flex items-center justify-center space-x-2"
-      >
-        <Plus className="w-5 h-5 text-gray-700" />
-        <span className="font-semibold text-gray-900">Add Important Date</span>
-      </button>
-
       {/* Pinned Dates */}
       {pinnedDates.length > 0 && (
         <div>
           <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center space-x-1">
-            <Pin className="w-4 h-4 text-pink-600" />
+            <Pin className="w-4 h-4 text-sky-600" />
             <span>Pinned</span>
           </h4>
           <div className="space-y-2">
@@ -144,11 +148,15 @@ export function ImportantDatesList({
         </div>
       )}
 
-      {dates.length === 0 && (
+      {filteredDates.length === 0 && (
         <div className="text-center py-8">
           <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-2" />
-          <p className="text-gray-500 text-sm">No important dates yet</p>
-          <p className="text-gray-400 text-xs mt-1">Add one to get started!</p>
+          <p className="text-gray-500 text-sm">
+            {currentMonth ? 'No important dates this month' : 'No important dates yet'}
+          </p>
+          <p className="text-gray-400 text-xs mt-1">
+            {currentMonth ? 'Click a date on the calendar to add one' : 'Add one to get started!'}
+          </p>
         </div>
       )}
     </div>

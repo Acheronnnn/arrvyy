@@ -1,5 +1,5 @@
 {
-  "name": "arrvy-web",
+  "name": "arrvyy-web",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -16,7 +16,8 @@
     "@supabase/supabase-js": "^2.38.4",
     "framer-motion": "^10.16.16",
     "date-fns": "^2.30.0",
-    "lucide-react": "^0.294.0"
+    "lucide-react": "^0.294.0",
+    "googleapis": "^128.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

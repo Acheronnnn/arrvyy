@@ -66,7 +66,7 @@ export function LoginCard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-100 to-purple-200 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50 relative overflow-hidden">
       {/* Background specks effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {Array.from({ length: 50 }).map((_, i) => (
@@ -119,7 +119,7 @@ export function LoginCard() {
         >
           <div className="w-48 h-48 md:w-64 md:h-64 relative">
             {/* 3D Robot Illustration Placeholder - bisa diganti dengan SVG/Image nanti */}
-            <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 flex items-center justify-center shadow-2xl relative overflow-hidden">
+            <div className="w-full h-full rounded-full bg-gradient-to-br from-sky-400 via-blue-400 to-cyan-400 flex items-center justify-center shadow-2xl relative overflow-hidden">
               {/* Robot Body */}
               <div className="absolute w-32 h-32 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full flex items-center justify-center">
                 {/* Robot Head */}

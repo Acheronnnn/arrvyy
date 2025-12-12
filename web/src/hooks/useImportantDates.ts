@@ -26,7 +26,8 @@ export function useImportantDates(userId: string | undefined) {
           table: 'important_dates',
           filter: `user_id=eq.${userId}`,
         },
-        () => {
+        (payload) => {
+          console.log('🔄 Realtime important date change detected:', payload.eventType)
           fetchDates()
         }
       )
@@ -73,7 +74,18 @@ export function useImportantDates(userId: string | undefined) {
         .single()
 
       if (insertError) throw insertError
-      setDates([...dates, data])
+      
+      // Use functional update to ensure we have latest state
+      setDates((prev) => {
+        console.log('✅ Adding important date to state:', data.id)
+        return [...prev, data]
+      })
+      
+      // Also refetch to ensure consistency
+      setTimeout(() => {
+        fetchDates()
+      }, 500)
+      
       return data
     } catch (err: any) {
       console.error('Error adding date:', err)
@@ -91,7 +103,15 @@ export function useImportantDates(userId: string | undefined) {
         .single()
 
       if (updateError) throw updateError
-      setDates(dates.map((d) => (d.id === id ? data : d)))
+      
+      // Use functional update
+      setDates((prev) => prev.map((d) => (d.id === id ? data : d)))
+      
+      // Also refetch
+      setTimeout(() => {
+        fetchDates()
+      }, 300)
+      
       return data
     } catch (err: any) {
       console.error('Error updating date:', err)
@@ -107,7 +127,18 @@ export function useImportantDates(userId: string | undefined) {
         .eq('id', id)
 
       if (deleteError) throw deleteError
-      setDates(dates.filter((d) => d.id !== id))
+      
+      // Use functional update
+      setDates((prev) => {
+        const updated = prev.filter((d) => d.id !== id)
+        console.log('✅ Important date deleted from state')
+        return updated
+      })
+      
+      // Also refetch
+      setTimeout(() => {
+        fetchDates()
+      }, 300)
     } catch (err: any) {
       console.error('Error deleting date:', err)
       throw err

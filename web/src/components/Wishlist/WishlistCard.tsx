@@ -78,7 +78,7 @@ export function WishlistCard() {
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-red-400 rounded-2xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-sky-400 to-cyan-400 rounded-2xl flex items-center justify-center">
               <Heart className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -108,14 +108,14 @@ export function WishlistCard() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="mb-6 bg-gradient-to-br from-pink-50 to-red-50 rounded-2xl p-4 space-y-3"
+              className="mb-6 bg-gradient-to-br from-sky-50 to-cyan-50 rounded-2xl p-4 space-y-3"
             >
               <input
                 type="text"
                 placeholder="Title"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none"
               />
               <textarea
                 placeholder="Description (optional)"
@@ -129,7 +129,7 @@ export function WishlistCard() {
                 placeholder="Category (optional)"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none"
               />
               <div className="flex space-x-2">
                 <button
@@ -144,7 +144,7 @@ export function WishlistCard() {
                 </button>
                 <button
                   onClick={editingId ? handleUpdate : handleAdd}
-                  className="flex-1 py-2 bg-gradient-to-r from-pink-500 to-red-500 text-white rounded-xl font-medium hover:from-pink-600 hover:to-red-600 transition-all"
+                  className="flex-1 py-2 bg-gradient-to-r from-sky-500 to-cyan-500 text-white rounded-xl font-medium hover:from-sky-600 hover:to-cyan-600 transition-all"
                 >
                   {editingId ? 'Update' : 'Add'}
                 </button>
@@ -172,7 +172,7 @@ export function WishlistCard() {
                         <p className="text-sm text-gray-600 mb-2">{item.description}</p>
                       )}
                       {item.category && (
-                        <span className="inline-block px-2 py-1 bg-pink-100 text-pink-700 text-xs rounded-lg">
+                        <span className="inline-block px-2 py-1 bg-sky-100 text-sky-700 text-xs rounded-lg">
                           {item.category}
                         </span>
                       )}

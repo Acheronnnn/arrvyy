@@ -42,7 +42,7 @@ export function DaysTogetherCounter({ anniversaryDate }: DaysTogetherCounterProp
 
   if (!anniversaryDate) {
     return (
-      <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl p-6 border border-pink-100">
+      <div className="bg-gradient-to-br from-sky-50 to-cyan-50 rounded-2xl p-6 border border-sky-100">
         <div className="text-center">
           <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
           <p className="text-gray-500 text-sm">Set your anniversary date</p>
@@ -56,14 +56,14 @@ export function DaysTogetherCounter({ anniversaryDate }: DaysTogetherCounterProp
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 rounded-2xl p-6 border border-pink-100 relative overflow-hidden"
+      className="bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50 rounded-2xl p-6 border border-sky-100 relative overflow-hidden"
     >
       {/* Background decoration */}
       <div className="absolute inset-0 opacity-10">
         {Array.from({ length: 15 }).map((_, i) => (
           <Heart
             key={i}
-            className="absolute w-8 h-8 text-pink-400"
+            className="absolute w-8 h-8 text-sky-400"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -77,7 +77,7 @@ export function DaysTogetherCounter({ anniversaryDate }: DaysTogetherCounterProp
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-cyan-400 flex items-center justify-center">
               <Heart className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -87,7 +87,7 @@ export function DaysTogetherCounter({ anniversaryDate }: DaysTogetherCounterProp
               </p>
             </div>
           </div>
-          <Sparkles className="w-6 h-6 text-pink-400" />
+          <Sparkles className="w-6 h-6 text-sky-400" />
         </div>
 
         {/* Main Counter */}
@@ -98,7 +98,7 @@ export function DaysTogetherCounter({ anniversaryDate }: DaysTogetherCounterProp
             animate={{ scale: 1, opacity: 1 }}
             className="mb-2"
           >
-            <span className="text-5xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-5xl font-bold bg-gradient-to-r from-sky-600 to-cyan-600 bg-clip-text text-transparent">
               {daysTogether.toLocaleString()}
             </span>
           </motion.div>
@@ -112,7 +112,7 @@ export function DaysTogetherCounter({ anniversaryDate }: DaysTogetherCounterProp
               key={years}
               initial={{ scale: 1.1 }}
               animate={{ scale: 1 }}
-              className="text-2xl font-bold text-pink-600"
+              className="text-2xl font-bold text-sky-600"
             >
               {years}
             </motion.div>
@@ -123,7 +123,7 @@ export function DaysTogetherCounter({ anniversaryDate }: DaysTogetherCounterProp
               key={months}
               initial={{ scale: 1.1 }}
               animate={{ scale: 1 }}
-              className="text-2xl font-bold text-rose-600"
+              className="text-2xl font-bold text-blue-600"
             >
               {months}
             </motion.div>
@@ -134,7 +134,7 @@ export function DaysTogetherCounter({ anniversaryDate }: DaysTogetherCounterProp
               key={days}
               initial={{ scale: 1.1 }}
               animate={{ scale: 1 }}
-              className="text-2xl font-bold text-purple-600"
+              className="text-2xl font-bold text-cyan-600"
             >
               {days}
             </motion.div>

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Home, MessageSquare, Music, MapPin, Heart } from 'lucide-react'
+import { Home, MessageSquare, Music, MapPin, Heart, User } from 'lucide-react'
 
-export type NavigationItem = 'dashboard' | 'chat' | 'music' | 'location' | 'wishlist'
+export type NavigationItem = 'dashboard' | 'chat' | 'music' | 'location' | 'wishlist' | 'profile'
 
 interface BottomNavigationProps {
   activeItem: NavigationItem
@@ -15,6 +15,7 @@ const navigationItems: { id: NavigationItem; icon: typeof Home; label: string }[
   { id: 'music', icon: Music, label: 'Music' },
   { id: 'location', icon: MapPin, label: 'Location' },
   { id: 'wishlist', icon: Heart, label: 'Wishlist' },
+  { id: 'profile', icon: User, label: 'Profile' },
 ]
 
 export function BottomNavigation({ activeItem, onItemClick }: BottomNavigationProps) {
@@ -137,7 +138,7 @@ export function BottomNavigation({ activeItem, onItemClick }: BottomNavigationPr
                   e.preventDefault()
                   handleItemClick(item.id, e)
                 }}
-                className="bottom-nav-button flex flex-col items-center justify-center flex-1 py-1 relative group cursor-pointer"
+                className="bottom-nav-button flex flex-col items-center justify-center flex-1 py-1 relative group cursor-pointer focus:outline-none focus:ring-0 focus-visible:ring-0 active:outline-none"
                 type="button"
                 style={{ 
                   WebkitTapHighlightColor: 'transparent',
@@ -149,20 +150,6 @@ export function BottomNavigation({ activeItem, onItemClick }: BottomNavigationPr
                 data-item-id={item.id}
                 aria-label={item.label}
               >
-                {/* Active indicator - smooth background */}
-                {isActive && (
-                  <motion.div
-                    layoutId="activeBackground"
-                    className="absolute inset-0 mx-2 rounded-2xl bg-white/10"
-                    initial={false}
-                    transition={{
-                      type: 'spring',
-                      stiffness: 500,
-                      damping: 30,
-                    }}
-                  />
-                )}
-                
                 {/* Icon with smooth animation */}
                 <motion.div
                   animate={{
@@ -179,8 +166,8 @@ export function BottomNavigation({ activeItem, onItemClick }: BottomNavigationPr
                   <Icon
                     className={`w-5 h-5 transition-colors duration-200 ${
                       isActive
-                        ? 'text-white'
-                        : 'text-gray-500 group-hover:text-gray-300'
+                        ? 'text-sky-500'
+                        : 'text-gray-900 group-hover:text-sky-500'
                     }`}
                   />
                 </motion.div>
@@ -194,21 +181,12 @@ export function BottomNavigation({ activeItem, onItemClick }: BottomNavigationPr
                   transition={{ duration: 0.2 }}
                   className={`text-[10px] mt-0.5 relative z-10 transition-colors duration-200 ${
                     isActive
-                      ? 'text-white font-semibold'
-                      : 'text-gray-500 group-hover:text-gray-300'
+                      ? 'text-sky-500 font-semibold'
+                      : 'text-gray-900 group-hover:text-sky-500'
                   }`}
                 >
                   {item.label}
                 </motion.span>
-                
-                {/* Active dot indicator */}
-                {isActive && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"
-                  />
-                )}
               </button>
             )
           })}

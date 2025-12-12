@@ -41,7 +41,7 @@ export function CountdownTimer({ targetDate, label }: CountdownTimerProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center space-x-2">
-        <Heart className="w-5 h-5 text-pink-500" />
+        <Heart className="w-5 h-5 text-sky-500" />
         <h3 className="text-lg font-bold text-gray-900">{label}</h3>
       </div>
       <div className="flex items-center space-x-2">
@@ -49,7 +49,7 @@ export function CountdownTimer({ targetDate, label }: CountdownTimerProps) {
           key={timeLeft.days}
           initial={{ scale: 1.2, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-100 to-rose-100 flex flex-col items-center justify-center border-2 border-white shadow-md"
+          className="w-16 h-16 rounded-full bg-gradient-to-br from-sky-100 to-cyan-100 flex flex-col items-center justify-center border-2 border-white shadow-md"
         >
           <span className="text-lg font-bold text-gray-900">{timeLeft.days}</span>
           <span className="text-xs text-gray-600">DAYS</span>
@@ -58,7 +58,7 @@ export function CountdownTimer({ targetDate, label }: CountdownTimerProps) {
           key={timeLeft.hours}
           initial={{ scale: 1.2, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-100 to-rose-100 flex flex-col items-center justify-center border-2 border-white shadow-md"
+          className="w-16 h-16 rounded-full bg-gradient-to-br from-sky-100 to-cyan-100 flex flex-col items-center justify-center border-2 border-white shadow-md"
         >
           <span className="text-lg font-bold text-gray-900">{timeLeft.hours}</span>
           <span className="text-xs text-gray-600">HOURS</span>
@@ -67,7 +67,7 @@ export function CountdownTimer({ targetDate, label }: CountdownTimerProps) {
           key={timeLeft.minutes}
           initial={{ scale: 1.2, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-100 to-rose-100 flex flex-col items-center justify-center border-2 border-white shadow-md"
+          className="w-16 h-16 rounded-full bg-gradient-to-br from-sky-100 to-cyan-100 flex flex-col items-center justify-center border-2 border-white shadow-md"
         >
           <span className="text-lg font-bold text-gray-900">{timeLeft.minutes}</span>
           <span className="text-xs text-gray-600">MIN</span>

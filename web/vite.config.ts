@@ -11,9 +11,10 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
-    host: '0.0.0.0', // Allow access from network (HP)
+    port: 5173, // Default Vite port
+    host: true, // Listen on all addresses (0.0.0.0) for better accessibility
     open: true,
+    strictPort: false, // Allow fallback to next available port
   },
 })
 

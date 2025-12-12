@@ -8,8 +8,8 @@ interface StreakCounterProps {
 
 const streakConfig: Record<Streak['streak_type'], { icon: any; label: string; color: string }> = {
   chat: { icon: MessageCircle, label: 'Chat', color: 'from-blue-400 to-cyan-400' },
-  activity: { icon: Activity, label: 'Activity', color: 'from-purple-400 to-pink-400' },
-  love_note: { icon: Heart, label: 'Love Notes', color: 'from-pink-400 to-rose-400' },
+  activity: { icon: Activity, label: 'Activity', color: 'from-sky-400 to-blue-400' },
+  love_note: { icon: Heart, label: 'Love Notes', color: 'from-sky-400 to-cyan-400' },
 }
 
 export function StreakCounter({ streaks }: StreakCounterProps) {
@@ -20,12 +20,12 @@ export function StreakCounter({ streaks }: StreakCounterProps) {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center space-x-2">
-        <Flame className="w-5 h-5 text-orange-500" />
+        <Flame className="w-5 h-5 text-sky-500" />
         <h3 className="text-lg font-bold text-gray-900">Streaks</h3>
       </div>
 
       {/* Total Streak */}
-      <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-100">
+      <div className="bg-gradient-to-r from-sky-50 to-cyan-50 rounded-xl p-4 border border-sky-100">
         <div className="text-center">
           <motion.div
             key={totalStreak}
@@ -33,7 +33,7 @@ export function StreakCounter({ streaks }: StreakCounterProps) {
             animate={{ scale: 1, opacity: 1 }}
             className="mb-1"
           >
-            <span className="text-3xl font-bold text-orange-600">{totalStreak}</span>
+            <span className="text-3xl font-bold text-sky-600">{totalStreak}</span>
           </motion.div>
           <p className="text-sm font-semibold text-gray-700">Total Streak</p>
           <p className="text-xs text-gray-500 mt-1">Longest: {longestStreak} days</p>

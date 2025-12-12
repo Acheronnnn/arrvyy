@@ -15,20 +15,20 @@ export function LocationCard() {
   const [showAddForm, setShowAddForm] = useState(false)
 
   // Sample location (akan di-fetch dari database nanti)
-  const [currentLocation] = useState<{ lat: number; lng: number } | null>(null)
+  // const [currentLocation] = useState<{ lat: number; lng: number } | null>(null)
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="h-full bg-gradient-to-br from-white via-green-50/50 to-emerald-50/50 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-white/80"
+      className="h-full bg-gradient-to-br from-white via-sky-50/50 to-blue-50/50 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-sky-100/80"
       style={{ backgroundColor: 'rgba(255, 255, 255, 0.98)' }}
     >
       {/* Header */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-400 rounded-2xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-sky-400 to-cyan-400 rounded-2xl flex items-center justify-center">
               <MapPin className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -48,7 +48,7 @@ export function LocationCard() {
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
         {/* Map Placeholder */}
-        <div className="w-full h-64 rounded-2xl bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center mb-6 relative overflow-hidden">
+        <div className="w-full h-64 rounded-2xl bg-gradient-to-br from-sky-100 to-cyan-100 flex items-center justify-center mb-6 relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YwZjlmYSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiM2YjcyODAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5NYXAgVmlldzwvdGV4dD48L3N2Zz4=')] bg-cover bg-center opacity-30"></div>
           <div className="relative z-10 text-center">
             <Navigation className="w-12 h-12 text-gray-400 mx-auto mb-2" />
@@ -65,7 +65,7 @@ export function LocationCard() {
                 key={location.id}
                 className="bg-gray-50 rounded-xl p-4 flex items-center space-x-3"
               >
-                <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-400 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-sky-400 to-cyan-400 rounded-lg flex items-center justify-center">
                   <MapPin className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1">
@@ -109,7 +109,7 @@ export function LocationCard() {
               >
                 Cancel
               </button>
-              <button className="flex-1 py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl font-medium hover:from-green-600 hover:to-blue-600 transition-all">
+              <button className="flex-1 py-2 bg-gradient-to-r from-sky-500 to-cyan-500 text-white rounded-xl font-medium hover:from-sky-600 hover:to-cyan-600 transition-all">
                 Add Location
               </button>
             </div>

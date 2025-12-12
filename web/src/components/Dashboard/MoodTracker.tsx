@@ -26,7 +26,7 @@ export function MoodTracker({ todayMood, recentMoods, onSetMood }: MoodTrackerPr
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center space-x-2">
-        <Heart className="w-5 h-5 text-purple-500" />
+        <Heart className="w-5 h-5 text-sky-500" />
         <h3 className="text-lg font-bold text-gray-900">Today's Mood</h3>
       </div>
 
@@ -99,7 +99,7 @@ export function MoodTracker({ todayMood, recentMoods, onSetMood }: MoodTrackerPr
                 <div
                   key={mood.id}
                   className={`w-10 h-10 rounded-full bg-gradient-to-br ${config.color} flex items-center justify-center ${
-                    isTodayMood ? 'ring-2 ring-purple-400' : ''
+                    isTodayMood ? 'ring-2 ring-sky-400' : ''
                   }`}
                   title={`${config.label} - ${format(new Date(mood.mood_date), 'MMM d')}`}
                 >

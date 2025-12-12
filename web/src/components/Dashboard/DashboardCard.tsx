@@ -18,22 +18,26 @@ import { MoodTracker } from './MoodTracker'
 import { StreakCounter } from './StreakCounter'
 import { AddDateModal } from './AddDateModal'
 import { UserSettingsModal } from './UserSettingsModal'
-import { Heart, Calendar, Sparkles, Settings } from 'lucide-react'
+import { AddLoveNoteModal } from './AddLoveNoteModal'
+import { Heart, Sparkles, Settings } from 'lucide-react'
 import { format, addYears } from 'date-fns'
 import type { ImportantDate } from '@/types'
 
 export function DashboardCard() {
-  const { user } = useAuth()
+  const { user, fetchUserProfile } = useAuth()
   const [loading, setLoading] = useState(true)
-  const [partner, setPartner] = useState<any>(null)
+  const [partner, setPartner] = useState<{ id: string; name: string; anniversary_date?: string | null; [key: string]: any } | null>(null)
   const [anniversaryDate, setAnniversaryDate] = useState<Date | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
+  const [showLoveNoteModal, setShowLoveNoteModal] = useState(false)
   const [editingDate, setEditingDate] = useState<ImportantDate | null>(null)
+  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   
   const { dates, loading: datesLoading, addDate, deleteDate, togglePin } = useImportantDates(user?.id)
-  const { memories, loading: memoriesLoading, addMemory } = useMemories(user?.id)
-  const { notes, loading: notesLoading, addNote, markAsRead } = useLoveNotes(user?.id)
+  const { memories, loading: memoriesLoading, deleteMemory } = useMemories(user?.id)
+  const { notes, loading: notesLoading, markAsRead, deleteNote } = useLoveNotes(user?.id)
   const { todayMood, recentMoods, loading: moodLoading, setMood } = useMoodTracker(user?.id)
   const { streaks, loading: streaksLoading } = useStreaks(user?.id, partner?.id)
 
@@ -74,7 +78,10 @@ export function DashboardCard() {
 
       // Get anniversary date from user profile
       if (user?.anniversary_date) {
-        setAnniversaryDate(new Date(user.anniversary_date))
+        const annDate = new Date(user.anniversary_date)
+        if (!isNaN(annDate.getTime())) {
+          setAnniversaryDate(annDate)
+        }
       }
     } catch (error) {
       console.error('Error fetching partner:', error)
@@ -85,24 +92,13 @@ export function DashboardCard() {
 
   const handleSettingsUpdate = async () => {
     // Refetch user data from database
-    if (user) {
+    if (user && fetchUserProfile) {
       try {
-        const { data: updatedUser } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', user.id)
-          .single()
+        // Refetch user profile from useAuth hook
+        await fetchUserProfile(user.id)
         
-        if (updatedUser) {
-          // Update user state via useAuth (if possible) or directly update local state
-          // For now, we'll refetch everything
-          await fetchPartnerAndDates()
-          
-          // Also update anniversaryDate directly if available
-          if (updatedUser.anniversary_date) {
-            setAnniversaryDate(new Date(updatedUser.anniversary_date))
-          }
-        }
+        // Refetch partner and dates
+        await fetchPartnerAndDates()
       } catch (error) {
         console.error('Error refreshing user data:', error)
         // Still try to fetch partner data
@@ -145,7 +141,7 @@ export function DashboardCard() {
 
   if (loading || datesLoading || memoriesLoading || notesLoading || moodLoading || streaksLoading) {
     return (
-      <div className="h-full bg-gradient-to-br from-white via-blue-50/50 to-purple-50/50 backdrop-blur-lg rounded-3xl shadow-2xl flex items-center justify-center border border-white/80"
+      <div className="h-full bg-gradient-to-br from-white via-sky-50/50 to-blue-50/50 backdrop-blur-lg rounded-3xl shadow-2xl flex items-center justify-center border border-sky-100/80"
            style={{ backgroundColor: 'rgba(255, 255, 255, 0.98)' }}>
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -161,14 +157,14 @@ export function DashboardCard() {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="h-full bg-gradient-to-br from-white via-blue-50/50 to-purple-50/50 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-white/80"
+      className="h-full bg-gradient-to-br from-white via-sky-50/50 to-blue-50/50 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-sky-100/80"
       style={{ backgroundColor: 'rgba(255, 255, 255, 0.98)' }}
     >
       {/* Header */}
-      <div className="p-3 md:p-4 pb-2 md:pb-3 border-b border-gray-100">
+      <div className="p-2 md:p-3 pb-1.5 md:pb-2 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-cyan-400 flex items-center justify-center">
               <Heart className="w-4 h-4 text-white" />
             </div>
             <div>
@@ -187,12 +183,12 @@ export function DashboardCard() {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4">
+      <div className="flex-1 overflow-y-auto p-2 md:p-3 space-y-2 md:space-y-3">
         {/* Days Together Counter - HIGHLIGHTED */}
         {anniversaryDate ? (
           <DaysTogetherCounter anniversaryDate={anniversaryDate} />
         ) : (
-          <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl p-4 border border-pink-100 text-center">
+          <div className="bg-gradient-to-br from-sky-50 to-cyan-50 rounded-2xl p-4 border border-sky-100 text-center">
             <p className="text-sm text-gray-600">Set your anniversary date in Settings</p>
             <p className="text-xs text-gray-500 mt-1">Click the gear icon above</p>
           </div>
@@ -200,14 +196,14 @@ export function DashboardCard() {
 
         {/* Anniversary Countdown */}
         {nextAnniversary ? (
-          <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl p-4 border border-pink-100">
+          <div className="bg-gradient-to-br from-sky-50 to-cyan-50 rounded-2xl p-4 border border-sky-100">
             <CountdownTimer
               targetDate={nextAnniversary}
               label="Next Anniversary"
             />
           </div>
         ) : anniversaryDate ? (
-          <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl p-4 border border-pink-100 text-center">
+          <div className="bg-gradient-to-br from-sky-50 to-cyan-50 rounded-2xl p-4 border border-sky-100 text-center">
             <p className="text-sm text-gray-600">Anniversary: {format(anniversaryDate, 'MMMM d, yyyy')}</p>
             <p className="text-xs text-gray-500 mt-1">Countdown will appear after calculation</p>
           </div>
@@ -247,22 +243,22 @@ export function DashboardCard() {
         <MemoryTimeline
           memories={memories}
           onAdd={() => {
-            // TODO: Open add memory modal
-            alert('Add memory feature coming soon!')
+            // Add memory modal is handled inside MemoryTimeline component
           }}
           onView={(memory) => {
             // TODO: Open memory view modal
             console.log('View memory:', memory)
+          }}
+          onDelete={(id) => {
+            console.log('🗑️ DashboardCard: deleteMemory called with id:', id)
+            return deleteMemory(id)
           }}
         />
 
         {/* Love Notes */}
         <LoveNotes
           notes={notes}
-          onAdd={() => {
-            // TODO: Open add love note modal
-            alert('Add love note feature coming soon!')
-          }}
+          onAdd={() => setShowLoveNoteModal(true)}
           onView={(note) => {
             if (note && !note.is_read) {
               markAsRead(note.id)
@@ -270,29 +266,43 @@ export function DashboardCard() {
             // TODO: Open love note view modal
             console.log('View note:', note)
           }}
+          onDelete={deleteNote}
         />
 
         {/* Mini Calendar */}
         <MiniCalendar
           importantDates={dates}
-          onDateClick={(date) => {
-            // Optional: Show date details
-            console.log('Date clicked:', date)
+          onDateClick={(date, existingDate) => {
+            setSelectedDate(date)
+            if (existingDate) {
+              // View/Edit mode - tanggal sudah ada important date
+              setEditingDate(existingDate)
+            } else {
+              // Add mode - tanggal kosong
+              setEditingDate(null)
+            }
+            setShowAddModal(true)
           }}
+          onMonthChange={setCurrentMonth}
         />
 
-        {/* Important Dates List */}
+        {/* Important Dates List - Filtered by current month */}
         <div>
           <div className="flex items-center space-x-2 mb-3">
-            <Sparkles className="w-5 h-5 text-purple-500" />
-            <h3 className="text-lg font-bold text-gray-900">Important Dates</h3>
+            <Sparkles className="w-5 h-5 text-sky-500" />
+            <h3 className="text-lg font-bold text-gray-900">
+              Important Dates - {format(currentMonth, 'MMMM yyyy')}
+            </h3>
           </div>
           <ImportantDatesList
             dates={dates}
+            currentMonth={currentMonth}
             onTogglePin={togglePin}
             onDelete={handleDeleteDate}
-            onAdd={() => {
-              setEditingDate(null)
+            onDateClick={(importantDate) => {
+              // Click date card untuk edit
+              setSelectedDate(new Date(importantDate.date))
+              setEditingDate(importantDate)
               setShowAddModal(true)
             }}
           />
@@ -305,9 +315,11 @@ export function DashboardCard() {
         onClose={() => {
           setShowAddModal(false)
           setEditingDate(null)
+          setSelectedDate(null)
         }}
         onSave={handleAddDate}
         editingDate={editingDate}
+        initialDate={selectedDate || null}
       />
 
       {/* Settings Modal */}
@@ -315,6 +327,12 @@ export function DashboardCard() {
         isOpen={showSettingsModal}
         onClose={() => setShowSettingsModal(false)}
         onUpdate={handleSettingsUpdate}
+      />
+
+      {/* Add Love Note Modal */}
+      <AddLoveNoteModal
+        isOpen={showLoveNoteModal}
+        onClose={() => setShowLoveNoteModal(false)}
       />
     </motion.div>
   )

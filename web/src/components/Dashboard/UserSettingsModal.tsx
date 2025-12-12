@@ -38,7 +38,7 @@ export function UserSettingsModal({ isOpen, onClose, onUpdate }: UserSettingsMod
           anniversary_date: anniversaryDate || null,
           birthday: birthday || null,
           partner_birthday: partnerBirthday || null,
-        } as any)
+        })
         .eq('id', user.id)
 
       if (error) throw error
@@ -85,7 +85,7 @@ export function UserSettingsModal({ isOpen, onClose, onUpdate }: UserSettingsMod
                 type="date"
                 value={anniversaryDate}
                 onChange={(e) => setAnniversaryDate(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none"
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none"
               />
             </div>
           </div>
@@ -101,7 +101,7 @@ export function UserSettingsModal({ isOpen, onClose, onUpdate }: UserSettingsMod
                 type="date"
                 value={birthday}
                 onChange={(e) => setBirthday(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none"
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none"
               />
             </div>
           </div>
@@ -117,7 +117,7 @@ export function UserSettingsModal({ isOpen, onClose, onUpdate }: UserSettingsMod
                 type="date"
                 value={partnerBirthday}
                 onChange={(e) => setPartnerBirthday(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none"
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none"
               />
             </div>
           </div>
@@ -134,7 +134,7 @@ export function UserSettingsModal({ isOpen, onClose, onUpdate }: UserSettingsMod
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-xl font-semibold hover:from-pink-600 hover:to-purple-600 transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-2.5 bg-gradient-to-r from-sky-500 to-cyan-500 text-white rounded-xl font-semibold hover:from-sky-600 hover:to-cyan-600 transition-colors disabled:opacity-50"
             >
               {loading ? 'Saving...' : 'Save'}
             </button>

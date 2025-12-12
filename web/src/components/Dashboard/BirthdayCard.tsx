@@ -27,25 +27,26 @@ export function BirthdayCard({ name, birthday, isPartner = false }: BirthdayCard
   }, [birthday])
 
   const isTodayBirthday = isToday(nextBirthday)
+  
+  // Check if name is Dhevilla Almeira - keep pink color
+  const isDhevilla = name.toLowerCase().includes('dhevilla') || name.toLowerCase().includes('almeira')
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`p-4 rounded-2xl ${
-        isPartner
-          ? 'bg-gradient-to-br from-purple-50 to-pink-50'
-          : 'bg-gradient-to-br from-blue-50 to-cyan-50'
-      } border border-white/50`}
+      className={`p-4 rounded-2xl border ${
+        isDhevilla
+          ? 'bg-gradient-to-br from-pink-50 to-rose-50 border-pink-100'
+          : 'bg-gradient-to-br from-sky-50 to-cyan-50 border-sky-100'
+      }`}
     >
       <div className="flex items-center space-x-3">
-        <div
-          className={`w-12 h-12 rounded-full flex items-center justify-center ${
-            isPartner
-              ? 'bg-gradient-to-br from-purple-400 to-pink-400'
-              : 'bg-gradient-to-br from-blue-400 to-cyan-400'
-          }`}
-        >
+        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+          isDhevilla
+            ? 'bg-gradient-to-br from-pink-400 to-rose-400'
+            : 'bg-gradient-to-br from-sky-400 to-cyan-400'
+        }`}>
           <Cake className="w-6 h-6 text-white" />
         </div>
         <div className="flex-1">
@@ -56,7 +57,9 @@ export function BirthdayCard({ name, birthday, isPartner = false }: BirthdayCard
         </div>
         <div className="text-right">
           {isTodayBirthday ? (
-            <div className="flex items-center space-x-1 text-pink-600">
+            <div className={`flex items-center space-x-1 ${
+              isDhevilla ? 'text-pink-600' : 'text-sky-600'
+            }`}>
               <Gift className="w-4 h-4" />
               <span className="text-sm font-bold">Today!</span>
             </div>

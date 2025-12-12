@@ -1,33 +1,64 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { X, Calendar, Type } from 'lucide-react'
+import { X } from 'lucide-react'
 import type { ImportantDate } from '@/types'
+
+// Helper function untuk format Date ke yyyy-MM-dd tanpa timezone issues
+const formatDateForInput = (date: Date): string => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
 interface AddDateModalProps {
   isOpen: boolean
   onClose: () => void
   onSave: (date: Omit<ImportantDate, 'id' | 'created_at' | 'updated_at'>) => void
   editingDate?: ImportantDate | null
+  initialDate?: Date | null
 }
 
-export function AddDateModal({ isOpen, onClose, onSave, editingDate }: AddDateModalProps) {
+export function AddDateModal({ isOpen, onClose, onSave, editingDate, initialDate }: AddDateModalProps) {
   const [title, setTitle] = useState(editingDate?.title || '')
   const [date, setDate] = useState(
-    editingDate ? new Date(editingDate.date).toISOString().split('T')[0] : ''
+    editingDate 
+      ? formatDateForInput(new Date(editingDate.date))
+      : initialDate
+        ? formatDateForInput(initialDate)
+        : ''
   )
   const [type, setType] = useState<ImportantDate['type']>(editingDate?.type || 'custom')
   const [description, setDescription] = useState(editingDate?.description || '')
   const [color, setColor] = useState(editingDate?.color || '#6366f1')
 
-  const colors = [
-    '#6366f1', // indigo
-    '#f472b6', // pink
-    '#ec4899', // rose
-    '#8b5cf6', // purple
-    '#06b6d4', // cyan
-    '#10b981', // emerald
-    '#f59e0b', // amber
-  ]
+  // Update state ketika modal dibuka dengan initialDate atau editingDate baru
+  useEffect(() => {
+    if (isOpen) {
+      if (editingDate) {
+        // Edit mode - isi semua field dari editingDate
+        setTitle(editingDate.title)
+        setDate(formatDateForInput(new Date(editingDate.date)))
+        setType(editingDate.type)
+        setDescription(editingDate.description || '')
+        setColor(editingDate.color || '#6366f1')
+      } else if (initialDate) {
+        // Add mode dari calendar - isi tanggal saja
+        setTitle('')
+        setDate(formatDateForInput(initialDate))
+        setType('custom')
+        setDescription('')
+        setColor('#6366f1')
+      } else {
+        // Add mode manual - reset semua
+        setTitle('')
+        setDate('')
+        setType('custom')
+        setDescription('')
+        setColor('#6366f1')
+      }
+    }
+  }, [isOpen, editingDate, initialDate])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,7 +76,7 @@ export function AddDateModal({ isOpen, onClose, onSave, editingDate }: AddDateMo
     
     // Reset form
     setTitle('')
-    setDate('')
+    setDate(initialDate ? formatDateForInput(initialDate) : '')
     setType('custom')
     setDescription('')
     setColor('#6366f1')
@@ -75,8 +106,8 @@ export function AddDateModal({ isOpen, onClose, onSave, editingDate }: AddDateMo
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
-          {/* Title */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Title - Only visible field */}
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">
               Title
@@ -86,94 +117,30 @@ export function AddDateModal({ isOpen, onClose, onSave, editingDate }: AddDateMo
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none"
+              autoFocus
+              className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none"
               placeholder="e.g., Our First Date"
             />
           </div>
 
-          {/* Date */}
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Date
-            </label>
-            <div className="relative">
-              <Calendar className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-                className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none"
-              />
-            </div>
-          </div>
-
-          {/* Type */}
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Type
-            </label>
-            <div className="relative">
-              <Type className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <select
-                value={type}
-                onChange={(e) => setType(e.target.value as ImportantDate['type'])}
-                className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none appearance-none"
-              >
-                <option value="custom">Custom</option>
-                <option value="anniversary">Anniversary</option>
-                <option value="birthday">Birthday</option>
-                <option value="milestone">Milestone</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Description (Optional)
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={2}
-              className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 outline-none resize-none"
-              placeholder="Add a note about this date..."
-            />
-          </div>
-
-          {/* Color */}
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1.5">
-              Color
-            </label>
-            <div className="flex items-center space-x-1.5">
-              {colors.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setColor(c)}
-                  className={`w-8 h-8 rounded-full border-2 transition-all ${
-                    color === c ? 'border-gray-900 scale-110' : 'border-gray-200'
-                  }`}
-                  style={{ backgroundColor: c }}
-                />
-              ))}
-            </div>
-          </div>
+          {/* Hidden fields - Date, Type, Description, Color tetap digunakan dengan default values */}
+          {/* Date: dari initialDate atau editingDate.date */}
+          {/* Type: default 'custom' */}
+          {/* Description: default '' */}
+          {/* Color: default '#6366f1' */}
 
           {/* Buttons */}
-          <div className="flex items-center space-x-2 pt-1">
+          <div className="flex items-center space-x-2 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+              className="flex-1 px-3 py-2.5 text-sm bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-3 py-2 text-sm bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg font-semibold hover:from-pink-600 hover:to-purple-600 transition-colors"
+              className="flex-1 px-3 py-2.5 text-sm bg-gradient-to-r from-sky-500 to-cyan-500 text-white rounded-lg font-semibold hover:from-sky-600 hover:to-cyan-600 transition-colors"
             >
               {editingDate ? 'Update' : 'Add'}
             </button>

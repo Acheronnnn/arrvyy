@@ -6,10 +6,11 @@ import type { ImportantDate } from '@/types'
 
 interface MiniCalendarProps {
   importantDates: ImportantDate[]
-  onDateClick?: (date: Date) => void
+  onDateClick?: (date: Date, existingDate?: ImportantDate | null) => void
+  onMonthChange?: (month: Date) => void
 }
 
-export function MiniCalendar({ importantDates, onDateClick }: MiniCalendarProps) {
+export function MiniCalendar({ importantDates, onDateClick, onMonthChange }: MiniCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
 
   const monthStart = startOfMonth(currentMonth)
@@ -34,8 +35,17 @@ export function MiniCalendar({ importantDates, onDateClick }: MiniCalendarProps)
     }
   }
 
-  const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1))
-  const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1))
+  const prevMonth = () => {
+    const newMonth = subMonths(currentMonth, 1)
+    setCurrentMonth(newMonth)
+    onMonthChange?.(newMonth)
+  }
+  
+  const nextMonth = () => {
+    const newMonth = addMonths(currentMonth, 1)
+    setCurrentMonth(newMonth)
+    onMonthChange?.(newMonth)
+  }
 
   return (
     <div className="bg-white/50 rounded-2xl p-4 border border-white/50">
@@ -79,23 +89,23 @@ export function MiniCalendar({ importantDates, onDateClick }: MiniCalendarProps)
           return (
             <motion.button
               key={day.toISOString()}
-              onClick={() => onDateClick?.(day)}
+              onClick={() => onDateClick?.(day, dateType)}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              className={`aspect-square rounded-lg text-sm font-medium transition-colors ${
+              className={`aspect-square rounded-lg text-sm font-medium transition-colors relative ${
                 isToday
-                  ? 'bg-blue-500 text-white'
+                  ? 'bg-sky-500 text-white'
                   : dateType
                   ? dateType.is_pinned
-                    ? 'bg-pink-200 text-pink-900'
-                    : 'bg-purple-100 text-purple-900'
+                    ? 'bg-sky-200 text-sky-900'
+                    : 'bg-sky-100 text-sky-900'
                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
               }`}
-              title={dateType?.title}
+              title={dateType?.title || 'Click to add important date'}
             >
               {format(day, 'd')}
               {dateType?.is_pinned && (
-                <span className="block text-[8px]">📍</span>
+                <span className="absolute top-0.5 right-0.5 text-[8px]">📍</span>
               )}
             </motion.button>
           )

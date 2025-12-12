@@ -16,8 +16,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-sky-500 animate-spin" />
       </div>
     )
   }
@@ -77,9 +77,9 @@ function AuthCallback() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50 flex items-center justify-center">
       <div className="text-center">
-        <Loader2 className="w-8 h-8 text-green-500 animate-spin mx-auto mb-4" />
+        <Loader2 className="w-8 h-8 text-sky-500 animate-spin mx-auto mb-4" />
         <p className="text-gray-600">Memproses autentikasi...</p>
       </div>
     </div>

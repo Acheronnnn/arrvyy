@@ -14,7 +14,7 @@ export function ResetPasswordOTP() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { verifyPasswordResetOTP, resendPasswordResetOTP } = useAuth()
+  const { resendPasswordResetOTP } = useAuth()
 
   useEffect(() => {
     // Get email from URL params or localStorage

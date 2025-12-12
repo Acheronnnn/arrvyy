@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { X, Calendar, Type, Palette } from 'lucide-react'
+import { X, Calendar, Type } from 'lucide-react'
 import type { ImportantDate } from '@/types'
 
 interface ImportantDateFormProps {
@@ -179,7 +179,7 @@ export function ImportantDateForm({ date, onSave, onCancel }: ImportantDateFormP
               id="pin"
               checked={isPinned}
               onChange={(e) => setIsPinned(e.target.checked)}
-              className="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500"
+              className="w-4 h-4 text-sky-600 border-gray-300 rounded focus:ring-sky-500"
             />
             <label htmlFor="pin" className="text-sm text-gray-700 cursor-pointer">
               Pin this date (show in calendar)
@@ -197,7 +197,7 @@ export function ImportantDateForm({ date, onSave, onCancel }: ImportantDateFormP
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl font-semibold hover:from-pink-600 hover:to-rose-600 transition-all shadow-md hover:shadow-lg"
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-sky-500 to-cyan-500 text-white rounded-xl font-semibold hover:from-sky-600 hover:to-cyan-600 transition-all shadow-md hover:shadow-lg"
             >
               {date ? 'Update' : 'Add'} Date
             </button>

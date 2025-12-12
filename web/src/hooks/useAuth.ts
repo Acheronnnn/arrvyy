@@ -85,9 +85,11 @@ export function useAuth() {
 
       if (error) throw error
       setUser(data as User)
+      return data
     } catch (error) {
       console.error('Error fetching user profile:', error)
       // Tetap set loading false meskipun error
+      throw error
     } finally {
       setLoading(false)
     }
@@ -389,6 +391,7 @@ export function useAuth() {
     verifyPasswordResetOTP,
     resendPasswordResetOTP,
     updatePassword,
+    fetchUserProfile,
   }
 }
 

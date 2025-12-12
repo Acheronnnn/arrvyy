@@ -10,6 +10,9 @@ export interface User {
   partner_birthday?: string;
   anniversary_date?: string;
   partner_id?: string;
+  bio?: string;
+  pronouns?: string;
+  display_name?: string;
 }
 
 export interface Message {
@@ -94,6 +97,59 @@ export interface Streak {
   current_streak: number;
   longest_streak: number;
   last_activity_date?: string;
+  updated_at: string;
+}
+
+export interface Song {
+  id: string;
+  spotify_id: string;
+  title: string;
+  artist: string;
+  album?: string;
+  cover_url?: string;
+  preview_url?: string;
+  duration_ms?: number;
+  external_url?: string;
+  created_at?: string;
+}
+
+export interface Playlist {
+  id: string;
+  user_id: string;
+  title: string;
+  description?: string;
+  cover_url?: string;
+  is_public: boolean;
+  created_at: string;
+  updated_at: string;
+  songs?: Song[];
+  song_count?: number;
+}
+
+export interface PlaylistSong {
+  id: string;
+  playlist_id: string;
+  song_id: string;
+  order_index: number;
+  added_at: string;
+  song?: Song;
+}
+
+export interface LikedSong {
+  id: string;
+  user_id: string;
+  song_id: string;
+  liked_at: string;
+  song?: Song;
+}
+
+export interface SongLyrics {
+  id: string;
+  song_id: string;
+  lyrics: string[];
+  synced_lyrics?: any;
+  source?: string;
+  created_at: string;
   updated_at: string;
 }
 
