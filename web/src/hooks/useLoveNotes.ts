@@ -27,7 +27,7 @@ export function useLoveNotes(userId: string | undefined) {
           filter: `receiver_id=eq.${userId}`,
         },
         (payload) => {
-          console.log('🔄 Realtime love note change (receiver):', payload.eventType, payload.new?.id || payload.old?.id)
+          console.log('🔄 Realtime love note change (receiver):', payload.eventType, (payload.new as any)?.id || (payload.old as any)?.id)
           fetchNotes()
         }
       )
@@ -44,7 +44,7 @@ export function useLoveNotes(userId: string | undefined) {
           filter: `sender_id=eq.${userId}`,
         },
         (payload) => {
-          console.log('🔄 Realtime love note change (sender):', payload.eventType, payload.new?.id || payload.old?.id)
+          console.log('🔄 Realtime love note change (sender):', payload.eventType, (payload.new as any)?.id || (payload.old as any)?.id)
           fetchNotes()
         }
       )
@@ -95,7 +95,7 @@ export function useLoveNotes(userId: string | undefined) {
       
       // Use functional update to ensure we have latest state
       setNotes((prev) => {
-        console.log('✅ Adding love note to state:', data.id)
+        console.log('✅ Adding love note to state:', (data as any).id)
         return [data, ...prev]
       })
       

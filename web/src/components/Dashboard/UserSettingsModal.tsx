@@ -32,8 +32,8 @@ export function UserSettingsModal({ isOpen, onClose, onUpdate }: UserSettingsMod
 
     try {
       setLoading(true)
-      const { error } = await supabase
-        .from('users')
+      const { error } = await (supabase
+        .from('users') as any)
         .update({
           anniversary_date: anniversaryDate || null,
           birthday: birthday || null,

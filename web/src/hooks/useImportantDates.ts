@@ -77,7 +77,7 @@ export function useImportantDates(userId: string | undefined) {
       
       // Use functional update to ensure we have latest state
       setDates((prev) => {
-        console.log('✅ Adding important date to state:', data.id)
+        console.log('✅ Adding important date to state:', (data as any).id)
         return [...prev, data]
       })
       

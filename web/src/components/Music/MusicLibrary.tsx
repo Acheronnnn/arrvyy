@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { ChevronLeft, MoreVertical, Play, Heart, Download, Music2 } from 'lucide-react'
+import { ChevronLeft, MoreVertical, Play, Music2 } from 'lucide-react'
 import { useMusic } from '@/hooks/useMusic'
 import { useAuth } from '@/hooks/useAuth'
 import { motion } from 'framer-motion'
-import type { Song, Playlist } from '@/types'
+import type { Song } from '@/types'
 
 type LibraryFilter = 'All' | 'Playlists' | 'Liked Songs' | 'Downloads'
 
@@ -20,12 +20,12 @@ export function MusicLibrary({ onPlaySong, onBack }: MusicLibraryProps) {
   const filters: LibraryFilter[] = ['All', 'Playlists', 'Liked Songs', 'Downloads']
 
   // Filter data berdasarkan activeFilter
-  const filteredPlaylists = playlists.filter((playlist) => {
+  const filteredPlaylists = playlists.filter(() => {
     if (activeFilter === 'All' || activeFilter === 'Playlists') return true
     return false
   })
 
-  const filteredLikedSongs = likedSongs.filter((liked) => {
+  const filteredLikedSongs = likedSongs.filter(() => {
     if (activeFilter === 'All' || activeFilter === 'Liked Songs') return true
     return false
   })

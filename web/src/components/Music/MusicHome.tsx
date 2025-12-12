@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
-import { Search, Heart, Play, Download, MoreVertical, Music2, Mic } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Search, Heart, Play, Music2, Mic } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useSpotify } from '@/hooks/useSpotify'
 import { motion } from 'framer-motion'

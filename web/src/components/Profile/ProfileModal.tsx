@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, User, Mail, Calendar, Heart, Cake, Edit2, Camera, Save, ArrowLeft, Plus, Users, FileText, ChevronRight, Image, Sparkles } from 'lucide-react'
+import { X, Edit2, Camera, ArrowLeft, ChevronRight, Image, Sparkles } from 'lucide-react'
 import { format, differenceInDays } from 'date-fns'
 import { useAuth } from '@/hooks/useAuth'
 import { useGoogleDrive } from '@/hooks/useGoogleDrive'
@@ -25,14 +25,13 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const { user, fetchUserProfile } = useAuth()
   const { uploadPhoto, uploading: uploadingAvatar } = useGoogleDrive()
   const [activeTab, setActiveTab] = useState<'view' | 'edit'>('view')
-  const [partner, setPartner] = useState<any>(null)
-  const [loading, setLoading] = useState(false)
+  const [_partner, setPartner] = useState<any>(null)
   const [saving, setSaving] = useState(false)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   
   // Statistics
-  const [stats, setStats] = useState({
+  const [_stats, setStats] = useState({
     memoriesCount: 0,
     loveNotesCount: 0,
     totalStreak: 0,
@@ -108,7 +107,7 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         .select('current_streak')
         .eq('user_id', user.id)
 
-      const totalStreak = streaksData?.reduce((sum, s) => sum + (s.current_streak || 0), 0) || 0
+      const totalStreak = streaksData?.reduce((sum: number, s: any) => sum + (s.current_streak || 0), 0) || 0
 
       // Calculate days together
       let daysTogether = 0
@@ -137,9 +136,9 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       const avatarUrl = await uploadPhoto(file)
       
       // Update user avatar_url
-      const { error } = await supabase
-        .from('users')
-        .update({ avatar_url: avatarUrl } as any)
+      const { error } = await (supabase
+        .from('users') as any)
+        .update({ avatar_url: avatarUrl })
         .eq('id', user.id)
 
       if (error) throw error
@@ -213,8 +212,8 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         updates.partner_birthday = null
       }
 
-      const { error } = await supabase
-        .from('users')
+      const { error } = await (supabase
+        .from('users') as any)
         .update(updates)
         .eq('id', user.id)
 

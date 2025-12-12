@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X, Heart, Lock } from 'lucide-react'
+import { X, Lock } from 'lucide-react'
 import { useLoveNotes } from '@/hooks/useLoveNotes'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
@@ -41,7 +41,7 @@ export function AddLoveNoteModal({ isOpen, onClose }: AddLoveNoteModalProps) {
           .maybeSingle()
 
         if (partnerData) {
-          setPartnerId(partnerData.id)
+          setPartnerId((partnerData as any).id)
         }
       } catch (err) {
         console.error('Error fetching partner:', err)
@@ -89,7 +89,7 @@ export function AddLoveNoteModal({ isOpen, onClose }: AddLoveNoteModalProps) {
             .maybeSingle()
 
           if (partnerData) {
-            setPartnerId(partnerData.id)
+            setPartnerId((partnerData as any).id)
           } else {
             throw new Error('Partner not found. Please ensure there are 2 users in the system.')
           }
@@ -106,6 +106,8 @@ export function AddLoveNoteModal({ isOpen, onClose }: AddLoveNoteModalProps) {
         receiver_id: finalPartnerId,
         is_secret: isSecret,
         color: color,
+        sender_id: user!.id,
+        is_read: false,
       })
 
       // Reset form

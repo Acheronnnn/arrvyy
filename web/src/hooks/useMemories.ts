@@ -105,7 +105,7 @@ export function useMemories(userId: string | undefined) {
       
       // Use functional update to ensure we have latest state
       setMemories((prev) => {
-        console.log('✅ Adding memory to state:', data.id)
+        console.log('✅ Adding memory to state:', (data as any).id)
         return [data, ...prev]
       })
       

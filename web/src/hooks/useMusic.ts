@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import type { Playlist, Song, LikedSong, PlaylistSong } from '@/types'
+import type { Playlist, Song, LikedSong } from '@/types'
 
 export function useMusic(userId: string | undefined) {
   const [playlists, setPlaylists] = useState<Playlist[]>([])
@@ -114,7 +114,7 @@ export function useMusic(userId: string | undefined) {
           title,
           description,
           cover_url: coverUrl,
-        })
+        } as any)
         .select()
         .single()
 
@@ -141,7 +141,7 @@ export function useMusic(userId: string | undefined) {
           .single()
 
         if (existingSong) {
-          songId = existingSong.id
+          songId = (existingSong as any).id
         } else {
           // Create song record
           const { data: newSong, error: songError } = await supabase
@@ -155,12 +155,12 @@ export function useMusic(userId: string | undefined) {
               preview_url: song.preview_url,
               duration_ms: song.duration_ms,
               external_url: song.external_url,
-            })
+            } as any)
             .select()
             .single()
 
           if (songError) throw songError
-          songId = newSong.id
+          songId = (newSong as any).id
         }
       }
 
@@ -173,7 +173,7 @@ export function useMusic(userId: string | undefined) {
         .limit(1)
         .single()
 
-      const orderIndex = (maxOrder?.order_index || -1) + 1
+      const orderIndex = ((maxOrder as any)?.order_index || -1) + 1
 
       // Add to playlist
       const { error: addError } = await supabase
@@ -182,7 +182,7 @@ export function useMusic(userId: string | undefined) {
           playlist_id: playlistId,
           song_id: songId,
           order_index: orderIndex,
-        })
+        } as any)
 
       if (addError) throw addError
 
@@ -241,7 +241,7 @@ export function useMusic(userId: string | undefined) {
           .single()
 
         if (existingSong) {
-          songId = existingSong.id
+          songId = (existingSong as any).id
         } else {
           const { data: newSong, error: songError } = await supabase
             .from('songs')
@@ -254,12 +254,12 @@ export function useMusic(userId: string | undefined) {
               preview_url: song.preview_url,
               duration_ms: song.duration_ms,
               external_url: song.external_url,
-            })
+            } as any)
             .select()
             .single()
 
           if (songError) throw songError
-          songId = newSong.id
+          songId = (newSong as any).id
         }
       }
 
@@ -268,7 +268,7 @@ export function useMusic(userId: string | undefined) {
         .insert({
           user_id: userId,
           song_id: songId,
-        })
+        } as any)
 
       if (likeError && likeError.code !== '23505') throw likeError // Ignore duplicate
 

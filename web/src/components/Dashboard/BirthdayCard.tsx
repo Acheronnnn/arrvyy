@@ -9,7 +9,7 @@ interface BirthdayCardProps {
   isPartner?: boolean
 }
 
-export function BirthdayCard({ name, birthday, isPartner = false }: BirthdayCardProps) {
+export function BirthdayCard({ name, birthday }: BirthdayCardProps) {
   const [nextBirthday, setNextBirthday] = useState<Date>(new Date())
   const [daysUntil, setDaysUntil] = useState(0)
 

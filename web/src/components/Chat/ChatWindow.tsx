@@ -6,32 +6,6 @@ import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
 import type { User } from '@/types'
 
-// Helper function to get Google Drive thumbnail URL
-function getDriveImageUrl(photoUrl: string | undefined | null): string | null {
-  if (!photoUrl) {
-    return null
-  }
-  
-  let fileId: string | null = null
-  
-  const match1 = photoUrl.match(/[?&]id=([^&?]+)/)
-  if (match1 && match1[1]) {
-    fileId = match1[1].trim()
-  } else {
-    const match2 = photoUrl.match(/\/file\/d\/([^\/?&]+)/)
-    if (match2 && match2[1]) {
-      fileId = match2[1].trim()
-    }
-  }
-  
-  if (fileId) {
-    const cleanedFileId = fileId.split('?')[0].split('&')[0].trim()
-    return `https://drive.google.com/thumbnail?id=${cleanedFileId}&sz=w1000`
-  }
-  
-  return photoUrl
-}
-
 interface ChatWindowProps {
   currentUser: User
   otherUser: User

@@ -55,7 +55,7 @@ function getDriveImageUrl(photoUrl: string | undefined): string | null {
   return photoUrl
 }
 
-export function MemoryTimeline({ memories, onAdd, onView, onDelete }: MemoryTimelineProps) {
+export function MemoryTimeline({ memories, onView, onDelete }: MemoryTimelineProps) {
   const [showAddModal, setShowAddModal] = useState(false)
   const [showViewAllModal, setShowViewAllModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)

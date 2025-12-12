@@ -47,13 +47,14 @@ export function AddMemoryModal({ isOpen, onClose }: AddMemoryModalProps) {
       const newMemory = await addMemory(
         {
           title: title.trim(),
-          description: description.trim() || null,
+          description: description.trim() || undefined,
           memory_date: memoryDate,
-        },
+          user_id: '',
+        } as any,
         photo || undefined
       )
 
-      console.log('✅ Memory added successfully:', newMemory?.id)
+      console.log('✅ Memory added successfully:', (newMemory as any)?.id)
 
       // Reset form
       setTitle('')

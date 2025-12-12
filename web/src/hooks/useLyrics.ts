@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
-interface LyricsResponse {
-  lyrics: string[]
-  synced?: boolean
-}
+// interface LyricsResponse {
+//   lyrics: string[]
+//   synced?: boolean
+// }
 
 export function useLyrics() {
   const [loading, setLoading] = useState(false)

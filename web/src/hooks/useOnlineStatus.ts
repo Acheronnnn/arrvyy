@@ -21,9 +21,9 @@ export function useOnlineStatus({ userId, otherUserId }: UseOnlineStatusProps) {
       try {
         // Update last_seen_at di database (jika kolom ada)
         // Jika kolom belum ada, ini akan fail gracefully
-        await supabase
-          .from('users')
-          .update({ last_seen_at: new Date().toISOString() } as any)
+        await (supabase
+          .from('users') as any)
+          .update({ last_seen_at: new Date().toISOString() })
           .eq('id', userId)
       } catch (error) {
         // Kolom mungkin belum ada, ignore error
@@ -68,8 +68,8 @@ export function useOnlineStatus({ userId, otherUserId }: UseOnlineStatusProps) {
           return
         }
 
-        if (data?.last_seen_at) {
-          const lastSeenDate = new Date(data.last_seen_at)
+        if ((data as any)?.last_seen_at) {
+          const lastSeenDate = new Date((data as any).last_seen_at)
           const now = new Date()
           const secondsAgo = differenceInSeconds(now, lastSeenDate)
 

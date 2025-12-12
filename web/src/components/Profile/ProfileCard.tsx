@@ -42,15 +42,6 @@ function getDriveImageUrl(photoUrl: string | undefined | null): string | null {
   return photoUrl
 }
 
-// Helper function untuk format Date ke yyyy-MM-dd tanpa timezone issues
-const formatDateForInput = (date: Date | string | null | undefined): string => {
-  if (!date) return ''
-  const d = typeof date === 'string' ? new Date(date) : date
-  const year = d.getFullYear()
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
 
 export function ProfileCard() {
   const { user, fetchUserProfile } = useAuth()
@@ -105,7 +96,7 @@ export function ProfileCard() {
       // (fetchUserProfile mungkin ada delay)
       
       // Refresh user data to show updated avatar
-      const updatedUser = await fetchUserProfile(user.id)
+      await fetchUserProfile(user.id)
       
       // Force re-render avatar by updating key
       setAvatarKey(prev => prev + 1)
