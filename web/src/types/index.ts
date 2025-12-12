@@ -153,3 +153,14 @@ export interface SongLyrics {
   updated_at: string;
 }
 
+export interface UserLocation {
+  id: string;
+  user_id: string;
+  latitude: number;
+  longitude: number;
+  address?: string | null;
+  is_online: boolean;
+  last_updated_at: string;
+  created_at?: string;
+}
+
