@@ -3,6 +3,7 @@ import { X, Upload } from 'lucide-react'
 import { useMemories } from '@/hooks/useMemories'
 import { useAuth } from '@/hooks/useAuth'
 import { format } from 'date-fns'
+import type { Memory } from '@/types'
 
 interface AddMemoryModalProps {
   isOpen: boolean
@@ -44,13 +45,14 @@ export function AddMemoryModal({ isOpen, onClose }: AddMemoryModalProps) {
     setError(null)
 
     try {
+      // user_id will be set by useMemories hook from authenticated user
+      // We don't need to (and shouldn't) set it here
       const newMemory = await addMemory(
         {
           title: title.trim(),
           description: description.trim() || undefined,
           memory_date: memoryDate,
-          user_id: '',
-        } as any,
+        } as Omit<Memory, 'id' | 'created_at' | 'updated_at' | 'user_id' | 'partner_id' | 'photo_url'>,
         photo || undefined
       )
 
@@ -187,4 +189,3 @@ export function AddMemoryModal({ isOpen, onClose }: AddMemoryModalProps) {
     </div>
   )
 }
-

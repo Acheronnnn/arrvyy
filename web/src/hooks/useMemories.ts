@@ -65,13 +65,13 @@ export function useMemories(userId: string | undefined) {
   }
 
   const addMemory = async (
-    memory: Omit<Memory, 'id' | 'created_at' | 'updated_at'>,
+    memory: Omit<Memory, 'id' | 'created_at' | 'updated_at' | 'user_id' | 'partner_id' | 'photo_url'>,
     photoFile?: File
   ) => {
     if (!userId) throw new Error('User not logged in')
 
     try {
-      let photoUrl = memory.photo_url
+      let photoUrl: string | undefined = undefined
 
       // Upload photo to Google Drive if provided
       if (photoFile) {
