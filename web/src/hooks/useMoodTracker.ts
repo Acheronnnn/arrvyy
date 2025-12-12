@@ -67,19 +67,29 @@ export function useMoodTracker(userId: string | undefined, partnerId: string | u
 
     try {
       setLoading(true)
-      // Fetch moods from both user and partner (sharing)
-      const { data, error: fetchError } = await supabase
+      // Fetch moods from both user and partner (sharing) if partner exists
+      // Otherwise, just fetch user's own moods
+      let query = supabase
         .from('mood_tracker')
         .select('*')
-        .or(`user_id.eq.${userId}${partnerId ? `,user_id.eq.${partnerId}` : ''}`)
+      
+      if (partnerId) {
+        // Use .or() when both user and partner exist
+        query = query.or(`user_id.eq.${userId},user_id.eq.${partnerId}`)
+      } else {
+        // Use .eq() when only user exists (no partner)
+        query = query.eq('user_id', userId)
+      }
+      
+      const { data, error: fetchError } = await query
         .order('mood_date', { ascending: false })
-        .limit(14) // 7 for user + 7 for partner
+        .limit(partnerId ? 14 : 7) // 7 for user + 7 for partner, or just 7 for user
 
       if (fetchError) throw fetchError
       
       // Find today's mood (prioritize user's own mood if both exist)
       const userTodayMood = data?.find((m: any) => isToday(new Date(m.mood_date)) && m.user_id === userId) || null
-      const partnerTodayMood = data?.find((m: any) => isToday(new Date(m.mood_date)) && m.user_id === partnerId) || null
+      const partnerTodayMood = partnerId ? data?.find((m: any) => isToday(new Date(m.mood_date)) && m.user_id === partnerId) || null : null
       setTodayMood(userTodayMood || partnerTodayMood)
       setRecentMoods(data || [])
       setError(null)

@@ -67,11 +67,21 @@ export function useImportantDates(userId: string | undefined, partnerId: string 
 
     try {
       setLoading(true)
-      // Fetch dates from both user and partner (sharing)
-      const { data, error: fetchError } = await supabase
+      // Fetch dates from both user and partner (sharing) if partner exists
+      // Otherwise, just fetch user's own dates
+      let query = supabase
         .from('important_dates')
         .select('*')
-        .or(`user_id.eq.${userId}${partnerId ? `,user_id.eq.${partnerId}` : ''}`)
+      
+      if (partnerId) {
+        // Use .or() when both user and partner exist
+        query = query.or(`user_id.eq.${userId},user_id.eq.${partnerId}`)
+      } else {
+        // Use .eq() when only user exists (no partner)
+        query = query.eq('user_id', userId)
+      }
+      
+      const { data, error: fetchError } = await query
         .order('date', { ascending: true })
 
       if (fetchError) throw fetchError
