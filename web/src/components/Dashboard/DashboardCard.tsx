@@ -35,10 +35,10 @@ export function DashboardCard() {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   
-  const { dates, loading: datesLoading, addDate, deleteDate, togglePin } = useImportantDates(user?.id)
+  const { dates, loading: datesLoading, addDate, deleteDate, togglePin } = useImportantDates(user?.id, partner?.id)
   const { memories, loading: memoriesLoading, deleteMemory } = useMemories(user?.id)
   const { notes, loading: notesLoading, markAsRead, deleteNote } = useLoveNotes(user?.id)
-  const { todayMood, recentMoods, loading: moodLoading, setMood } = useMoodTracker(user?.id)
+  const { todayMood, recentMoods, loading: moodLoading, setMood } = useMoodTracker(user?.id, partner?.id)
   const { streaks, loading: streaksLoading } = useStreaks(user?.id, partner?.id)
 
   useEffect(() => {

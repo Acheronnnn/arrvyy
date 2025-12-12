@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { format, isToday } from 'date-fns'
 import type { MoodEntry } from '@/types'
 
-export function useMoodTracker(userId: string | undefined) {
+export function useMoodTracker(userId: string | undefined, partnerId: string | undefined) {
   const [todayMood, setTodayMood] = useState<MoodEntry | null>(null)
   const [recentMoods, setRecentMoods] = useState<MoodEntry[]>([])
   const [loading, setLoading] = useState(true)
@@ -17,6 +17,7 @@ export function useMoodTracker(userId: string | undefined) {
 
     fetchMoods()
     
+    // Subscribe to user's own mood changes
     const subscription = supabase
       .channel('mood_tracker_changes')
       .on(
@@ -33,27 +34,53 @@ export function useMoodTracker(userId: string | undefined) {
       )
       .subscribe()
 
+    // Subscribe to partner's mood changes if partner exists
+    let partnerSubscription: any = null
+    if (partnerId) {
+      partnerSubscription = supabase
+        .channel('mood_tracker_partner_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'mood_tracker',
+            filter: `user_id=eq.${partnerId}`,
+          },
+          () => {
+            fetchMoods()
+          }
+        )
+        .subscribe()
+    }
+
     return () => {
       subscription.unsubscribe()
+      if (partnerSubscription) {
+        partnerSubscription.unsubscribe()
+      }
     }
-  }, [userId])
+  }, [userId, partnerId])
 
   const fetchMoods = async () => {
     if (!userId) return
 
     try {
       setLoading(true)
+      // Fetch moods from both user and partner (sharing)
       const { data, error: fetchError } = await supabase
         .from('mood_tracker')
         .select('*')
-        .eq('user_id', userId)
+        .or(`user_id.eq.${userId}${partnerId ? `,user_id.eq.${partnerId}` : ''}`)
         .order('mood_date', { ascending: false })
-        .limit(7)
+        .limit(14) // 7 for user + 7 for partner
 
       if (fetchError) throw fetchError
       
-      const today = data?.find((m: any) => isToday(new Date(m.mood_date))) || null
-      setTodayMood(today)
+      // Find today's mood (prioritize user's own mood if both exist)
+      const userTodayMood = data?.find((m: any) => isToday(new Date(m.mood_date)) && m.user_id === userId) || null
+      const partnerTodayMood = data?.find((m: any) => isToday(new Date(m.mood_date)) && m.user_id === partnerId) || null
+      setTodayMood(userTodayMood || partnerTodayMood)
       setRecentMoods(data || [])
       setError(null)
     } catch (err: any) {

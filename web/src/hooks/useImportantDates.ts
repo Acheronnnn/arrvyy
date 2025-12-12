@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { ImportantDate } from '@/types'
 
-export function useImportantDates(userId: string | undefined) {
+export function useImportantDates(userId: string | undefined, partnerId: string | undefined) {
   const [dates, setDates] = useState<ImportantDate[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -15,7 +15,7 @@ export function useImportantDates(userId: string | undefined) {
 
     fetchDates()
     
-    // Subscribe to changes
+    // Subscribe to user's own date changes
     const subscription = supabase
       .channel('important_dates_changes')
       .on(
@@ -33,20 +33,45 @@ export function useImportantDates(userId: string | undefined) {
       )
       .subscribe()
 
+    // Subscribe to partner's date changes if partner exists
+    let partnerSubscription: any = null
+    if (partnerId) {
+      partnerSubscription = supabase
+        .channel('important_dates_partner_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'important_dates',
+            filter: `user_id=eq.${partnerId}`,
+          },
+          (payload) => {
+            console.log('🔄 Realtime partner important date change detected:', payload.eventType)
+            fetchDates()
+          }
+        )
+        .subscribe()
+    }
+
     return () => {
       subscription.unsubscribe()
+      if (partnerSubscription) {
+        partnerSubscription.unsubscribe()
+      }
     }
-  }, [userId])
+  }, [userId, partnerId])
 
   const fetchDates = async () => {
     if (!userId) return
 
     try {
       setLoading(true)
+      // Fetch dates from both user and partner (sharing)
       const { data, error: fetchError } = await supabase
         .from('important_dates')
         .select('*')
-        .eq('user_id', userId)
+        .or(`user_id.eq.${userId}${partnerId ? `,user_id.eq.${partnerId}` : ''}`)
         .order('date', { ascending: true })
 
       if (fetchError) throw fetchError
