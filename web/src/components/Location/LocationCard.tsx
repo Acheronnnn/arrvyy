@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MapPin, RefreshCw, Navigation, Home, Map, X, Check } from 'lucide-react'
+import { MapPin, RefreshCw, Navigation, Home, Map, X, Check, Sparkles } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import { Icon, DivIcon } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -49,29 +49,30 @@ function MapBounds({ myLocation, partnerLocation, myHome, partnerHome }: any) {
     }
 
     if (bounds.length > 0) {
-      map.fitBounds(bounds, { padding: [80, 80] })
+      map.fitBounds(bounds, { padding: [100, 100] })
     }
   }, [map, myLocation, partnerLocation, myHome, partnerHome])
 
   return null
 }
 
-// Custom Avatar Marker Component
+// Custom Avatar Marker Component - Enhanced dengan shadow dan glow
 function createAvatarMarker(avatarUrl: string | null, name: string, color: string, isOnline: boolean) {
   const avatarSrc = avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${color.replace('#', '')}&color=fff&size=128&bold=true`
   
   return new DivIcon({
     className: 'custom-avatar-marker',
     html: `
-      <div style="position: relative;">
+      <div style="position: relative; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25));">
         <div style="
-          width: 48px;
-          height: 48px;
+          width: 52px;
+          height: 52px;
           border-radius: 50%;
           border: 3px solid ${color};
           overflow: hidden;
-          background: white;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.2), 0 0 0 2px rgba(255,255,255,0.8);
+          transition: transform 0.2s;
         ">
           <img 
             src="${avatarSrc}" 
@@ -82,34 +83,34 @@ function createAvatarMarker(avatarUrl: string | null, name: string, color: strin
         </div>
         <div style="
           position: absolute;
-          bottom: -2px;
-          right: -2px;
-          width: 14px;
-          height: 14px;
+          bottom: -1px;
+          right: -1px;
+          width: 16px;
+          height: 16px;
           border-radius: 50%;
-          border: 2px solid white;
+          border: 3px solid white;
           background: ${isOnline ? '#10b981' : '#6b7280'};
-          box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         "></div>
       </div>
     `,
-    iconSize: [48, 48],
-    iconAnchor: [24, 48],
-    popupAnchor: [0, -48],
+    iconSize: [52, 52],
+    iconAnchor: [26, 52],
+    popupAnchor: [0, -52],
   })
 }
 
-// Custom Home Marker
+// Custom Home Marker - Enhanced dengan glow effect
 const HomeIcon = new Icon({
   iconUrl: 'data:image/svg+xml;base64,' + btoa(`
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="#f59e0b" stroke="#fff" stroke-width="2">
+    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="#f59e0b" stroke="#fff" stroke-width="2.5" filter="drop-shadow(0 2px 8px rgba(245,158,11,0.4))">
       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
       <polyline points="9 22 9 12 15 12 15 22"/>
     </svg>
   `),
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32],
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+  popupAnchor: [0, -40],
 })
 
 export function LocationCard() {
@@ -220,32 +221,41 @@ export function LocationCard() {
       className="h-full bg-gradient-to-br from-white via-sky-50/50 to-blue-50/50 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-sky-100/80"
       style={{ backgroundColor: 'rgba(255, 255, 255, 0.98)' }}
     >
-      {/* Header - Compact */}
-      <div className="p-4 border-b border-gray-200/60 bg-white/80 backdrop-blur-sm">
+      {/* Header - Enhanced dengan gradient */}
+      <div className="p-4 border-b border-gray-200/60 bg-gradient-to-r from-white via-sky-50/80 to-white backdrop-blur-sm">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-sky-400 to-cyan-400 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-sky-400 via-cyan-400 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
               <MapPin className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Location Tracker</h2>
+              <h2 className="text-lg font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                Location Tracker
+              </h2>
               <p className="text-xs text-gray-500">
-                {distance !== null ? `${distance.toFixed(1)} km apart` : 'Share your location'}
+                {distance !== null ? (
+                  <span className="flex items-center space-x-1">
+                    <Sparkles className="w-3 h-3 text-sky-500" />
+                    <span className="font-semibold text-sky-600">{distance.toFixed(1)} km apart</span>
+                  </span>
+                ) : (
+                  'Share your location'
+                )}
               </p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setShowSetHomeModal(true)}
-              className="w-9 h-9 rounded-lg bg-amber-100 hover:bg-amber-200 flex items-center justify-center transition-colors"
+              className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 flex items-center justify-center transition-all shadow-md hover:shadow-lg hover:scale-105"
               title="Set Home Location"
             >
-              <Home className="w-4 h-4 text-amber-600" />
+              <Home className="w-4 h-4 text-white" />
             </button>
             <button
               onClick={handleRefresh}
               disabled={updating || loading}
-              className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors disabled:opacity-50"
+              className="w-9 h-9 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 flex items-center justify-center transition-all shadow-md hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
               title="Refresh Location"
             >
               <RefreshCw className={`w-4 h-4 text-gray-700 ${updating ? 'animate-spin' : ''}`} />
@@ -253,56 +263,70 @@ export function LocationCard() {
           </div>
         </div>
 
-        {/* Info Panel - Compact */}
+        {/* Info Panel - Enhanced dengan gradient dan shadow */}
         <div className="grid grid-cols-2 gap-2">
           {/* My Location Info */}
           {myLocation && (
-            <div className="bg-sky-50 rounded-lg p-2 border border-sky-100">
+            <motion.div 
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-gradient-to-br from-sky-50 to-cyan-50 rounded-xl p-2.5 border border-sky-200/60 shadow-sm"
+            >
               <div className="flex items-center space-x-2 mb-1">
-                <div className="w-2 h-2 rounded-full bg-sky-500"></div>
-                <p className="text-xs font-semibold text-gray-900">Kamu</p>
-                <div className={`w-1.5 h-1.5 rounded-full ${myLocation.is_online ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-sky-500 shadow-sm"></div>
+                <p className="text-xs font-bold text-gray-900">Kamu</p>
+                <div className={`w-1.5 h-1.5 rounded-full ${myLocation.is_online ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
               </div>
               {myLocation.address && (
-                <p className="text-[10px] text-gray-600 truncate">{myLocation.address}</p>
+                <p className="text-[10px] text-gray-600 truncate font-medium">{myLocation.address}</p>
               )}
               {distanceToMyHome !== null && (
-                <p className="text-[10px] text-amber-600 mt-0.5">
-                  🏠 {distanceToMyHome.toFixed(1)} km dari rumah
+                <p className="text-[10px] text-amber-600 mt-0.5 font-semibold flex items-center space-x-1">
+                  <Home className="w-2.5 h-2.5" />
+                  <span>{distanceToMyHome.toFixed(1)} km dari rumah</span>
                 </p>
               )}
-            </div>
+            </motion.div>
           )}
 
           {/* Partner Location Info */}
           {partnerLocation && (
-            <div className="bg-red-50 rounded-lg p-2 border border-red-100">
+            <motion.div 
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-2.5 border border-red-200/60 shadow-sm"
+            >
               <div className="flex items-center space-x-2 mb-1">
-                <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                <p className="text-xs font-semibold text-gray-900">{partner?.name || 'Partner'}</p>
-                <div className={`w-1.5 h-1.5 rounded-full ${partnerLocation.is_online ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm"></div>
+                <p className="text-xs font-bold text-gray-900">{partner?.name || 'Partner'}</p>
+                <div className={`w-1.5 h-1.5 rounded-full ${partnerLocation.is_online ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
               </div>
               {partnerLocation.address && (
-                <p className="text-[10px] text-gray-600 truncate">{partnerLocation.address}</p>
+                <p className="text-[10px] text-gray-600 truncate font-medium">{partnerLocation.address}</p>
               )}
               {distanceToPartnerHome !== null && (
-                <p className="text-[10px] text-amber-600 mt-0.5">
-                  🏠 {distanceToPartnerHome.toFixed(1)} km dari rumah
+                <p className="text-[10px] text-amber-600 mt-0.5 font-semibold flex items-center space-x-1">
+                  <Home className="w-2.5 h-2.5" />
+                  <span>{distanceToPartnerHome.toFixed(1)} km dari rumah</span>
                 </p>
               )}
-            </div>
+            </motion.div>
           )}
         </div>
       </div>
 
-      {/* Map Container */}
-      <div className="flex-1 relative overflow-hidden">
+      {/* Map Container - Enhanced dengan modern tile layer */}
+      <div className="flex-1 relative overflow-hidden bg-gradient-to-br from-sky-100 to-blue-100">
         {loading && !hasLocations ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
-            <div className="text-center">
-              <Navigation className="w-12 h-12 text-gray-400 mx-auto mb-2 animate-pulse" />
-              <p className="text-gray-600 text-sm">Loading map...</p>
-            </div>
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center"
+            >
+              <Navigation className="w-12 h-12 text-sky-400 mx-auto mb-2 animate-pulse" />
+              <p className="text-gray-600 text-sm font-medium">Loading map...</p>
+            </motion.div>
           </div>
         ) : (
           <MapContainer
@@ -313,10 +337,16 @@ export function LocationCard() {
             zoom={hasLocations ? 6 : 2}
             className="w-full h-full z-0"
             scrollWheelZoom={true}
+            style={{ 
+              filter: 'brightness(1.05) contrast(1.05)',
+            }}
           >
+            {/* Modern Tile Layer - CartoDB Voyager (Colorful & Modern) */}
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+              subdomains="abcd"
+              maxZoom={19}
             />
 
             {/* My Location Marker - Avatar */}
@@ -330,18 +360,19 @@ export function LocationCard() {
                   myLocation.is_online
                 )}
               >
-                <Popup>
-                  <div className="text-center min-w-[120px]">
-                    <p className="font-semibold text-gray-900 text-sm">📍 Kamu</p>
+                <Popup className="custom-popup">
+                  <div className="text-center min-w-[140px] p-1">
+                    <p className="font-bold text-gray-900 text-sm mb-1">📍 Kamu</p>
                     {myLocation.address && (
-                      <p className="text-xs text-gray-600 mt-1">{myLocation.address}</p>
+                      <p className="text-xs text-gray-600 mt-1 mb-1">{myLocation.address}</p>
                     )}
                     <p className="text-xs text-gray-500 mt-1">
                       {new Date(myLocation.last_updated_at).toLocaleTimeString()}
                     </p>
                     {distanceToMyHome !== null && (
-                      <p className="text-xs text-amber-600 mt-1">
-                        🏠 {distanceToMyHome.toFixed(1)} km dari rumah
+                      <p className="text-xs text-amber-600 mt-1 font-semibold flex items-center justify-center space-x-1">
+                        <Home className="w-3 h-3" />
+                        <span>{distanceToMyHome.toFixed(1)} km dari rumah</span>
                       </p>
                     )}
                   </div>
@@ -360,11 +391,11 @@ export function LocationCard() {
                   partnerLocation.is_online
                 )}
               >
-                <Popup>
-                  <div className="text-center min-w-[120px]">
-                    <p className="font-semibold text-red-600 text-sm">💕 {partner?.name || 'Partner'}</p>
+                <Popup className="custom-popup">
+                  <div className="text-center min-w-[140px] p-1">
+                    <p className="font-bold text-red-600 text-sm mb-1">💕 {partner?.name || 'Partner'}</p>
                     {partnerLocation.address && (
-                      <p className="text-xs text-gray-600 mt-1">{partnerLocation.address}</p>
+                      <p className="text-xs text-gray-600 mt-1 mb-1">{partnerLocation.address}</p>
                     )}
                     <p className="text-xs text-gray-500 mt-1">
                       {partnerLocation.is_online ? '🟢 Online' : '⚫ Offline'}
@@ -373,8 +404,9 @@ export function LocationCard() {
                       {new Date(partnerLocation.last_updated_at).toLocaleTimeString()}
                     </p>
                     {distanceToPartnerHome !== null && (
-                      <p className="text-xs text-amber-600 mt-1">
-                        🏠 {distanceToPartnerHome.toFixed(1)} km dari rumah
+                      <p className="text-xs text-amber-600 mt-1 font-semibold flex items-center justify-center space-x-1">
+                        <Home className="w-3 h-3" />
+                        <span>{distanceToPartnerHome.toFixed(1)} km dari rumah</span>
                       </p>
                     )}
                   </div>
@@ -388,9 +420,9 @@ export function LocationCard() {
                 position={[myHome.latitude, myHome.longitude]}
                 icon={HomeIcon}
               >
-                <Popup>
-                  <div className="text-center min-w-[120px]">
-                    <p className="font-semibold text-amber-600 text-sm">🏠 Rumah Kamu</p>
+                <Popup className="custom-popup">
+                  <div className="text-center min-w-[140px] p-1">
+                    <p className="font-bold text-amber-600 text-sm mb-1">🏠 Rumah Kamu</p>
                     {myHome.address && (
                       <p className="text-xs text-gray-600 mt-1">{myHome.address}</p>
                     )}
@@ -405,9 +437,9 @@ export function LocationCard() {
                 position={[partnerHome.latitude, partnerHome.longitude]}
                 icon={HomeIcon}
               >
-                <Popup>
-                  <div className="text-center min-w-[120px]">
-                    <p className="font-semibold text-amber-600 text-sm">🏠 Rumah {partner?.name || 'Partner'}</p>
+                <Popup className="custom-popup">
+                  <div className="text-center min-w-[140px] p-1">
+                    <p className="font-bold text-amber-600 text-sm mb-1">🏠 Rumah {partner?.name || 'Partner'}</p>
                     {partnerHome.address && (
                       <p className="text-xs text-gray-600 mt-1">{partnerHome.address}</p>
                     )}
@@ -428,51 +460,57 @@ export function LocationCard() {
           </MapContainer>
         )}
 
-        {/* Distance Badge - Enhanced */}
+        {/* Distance Badge - Enhanced dengan gradient */}
         {distance !== null && (
           <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000]">
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white/95 backdrop-blur-sm rounded-full px-4 py-2 shadow-xl border-2 border-sky-200"
+              initial={{ opacity: 0, y: -10, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              className="bg-gradient-to-r from-white via-sky-50 to-white backdrop-blur-md rounded-full px-5 py-2.5 shadow-2xl border-2 border-sky-300/50"
             >
               <div className="flex items-center space-x-2">
-                <Map className="w-4 h-4 text-sky-500" />
-                <p className="text-sm font-bold text-gray-900">
-                  <span className="text-sky-500">{distance.toFixed(1)} km</span>
-                  <span className="text-gray-500 ml-1">apart</span>
-                </p>
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-cyan-500 flex items-center justify-center shadow-lg">
+                  <Map className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900 leading-tight">
+                    <span className="text-sky-600 text-base">{distance.toFixed(1)} km</span>
+                    <span className="text-gray-500 ml-1.5 text-xs">apart</span>
+                  </p>
+                </div>
               </div>
             </motion.div>
           </div>
         )}
       </div>
 
-      {/* Set Home Modal */}
+      {/* Set Home Modal - Enhanced */}
       <AnimatePresence>
         {showSetHomeModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm z-[2000] flex items-center justify-center p-4"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm z-[2000] flex items-center justify-center p-4"
             onClick={() => setShowSetHomeModal(false)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-gray-900 flex items-center space-x-2">
-                  <Home className="w-5 h-5 text-amber-500" />
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center">
+                    <Home className="w-4 h-4 text-white" />
+                  </div>
                   <span>Set Home Location</span>
                 </h3>
                 <button
                   onClick={() => setShowSetHomeModal(false)}
-                  className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center"
+                  className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
                 >
                   <X className="w-4 h-4 text-gray-500" />
                 </button>
@@ -483,9 +521,9 @@ export function LocationCard() {
               </p>
 
               {myLocation && (
-                <div className="bg-gray-50 rounded-lg p-3 mb-4">
-                  <p className="text-xs text-gray-500 mb-1">Lokasi saat ini:</p>
-                  <p className="text-sm font-medium text-gray-900">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-3 mb-4 border border-gray-200">
+                  <p className="text-xs text-gray-500 mb-1 font-medium">Lokasi saat ini:</p>
+                  <p className="text-sm font-semibold text-gray-900">
                     {myLocation.address || `${myLocation.latitude.toFixed(6)}, ${myLocation.longitude.toFixed(6)}`}
                   </p>
                 </div>
@@ -494,14 +532,14 @@ export function LocationCard() {
               <div className="flex space-x-3">
                 <button
                   onClick={() => setShowSetHomeModal(false)}
-                  className="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-4 py-2.5 rounded-xl border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all font-medium"
                 >
                   Batal
                 </button>
                 <button
                   onClick={handleSetHome}
                   disabled={settingHome || !myLocation}
-                  className="flex-1 px-4 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors disabled:opacity-50 flex items-center justify-center space-x-2"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 transition-all disabled:opacity-50 flex items-center justify-center space-x-2 font-medium shadow-lg"
                 >
                   {settingHome ? (
                     <>
