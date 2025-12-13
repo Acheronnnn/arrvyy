@@ -118,7 +118,9 @@ export function LocationCard() {
   const [partner, setPartner] = useState<{ id: string; name: string; avatar_url?: string; [key: string]: any } | null>(null)
   const { 
     myLocation, 
-    partnerLocation, 
+    partnerLocation,
+    myHome: myHomeFromHook, // Permanent home location
+    partnerHome: partnerHomeFromHook, // Permanent partner home location
     distance, 
     distanceToMyHome,
     distanceToPartnerHome,
@@ -202,17 +204,10 @@ export function LocationCard() {
   }
 
   const defaultCenter: [number, number] = [-6.2088, 106.8456]
-  const hasLocations = myLocation || partnerLocation
-  const myHome = myLocation?.home_latitude && myLocation?.home_longitude ? {
-    latitude: myLocation.home_latitude,
-    longitude: myLocation.home_longitude,
-    address: myLocation.home_address,
-  } : null
-  const partnerHome = partnerLocation?.home_latitude && partnerLocation?.home_longitude ? {
-    latitude: partnerLocation.home_latitude,
-    longitude: partnerLocation.home_longitude,
-    address: partnerLocation.home_address,
-  } : null
+  const hasLocations = myLocation || partnerLocation || myHomeFromHook || partnerHomeFromHook
+  // Use home locations from hook (permanent, independent from current location)
+  const myHome = myHomeFromHook
+  const partnerHome = partnerHomeFromHook
 
   return (
     <motion.div

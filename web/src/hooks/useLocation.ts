@@ -6,6 +6,9 @@ import type { UserLocation } from '@/types'
 export function useLocation(userId: string | undefined, partnerId: string | undefined) {
   const [myLocation, setMyLocation] = useState<UserLocation | null>(null)
   const [partnerLocation, setPartnerLocation] = useState<UserLocation | null>(null)
+  // Home locations (permanent, independent from current location)
+  const [myHome, setMyHome] = useState<{ latitude: number; longitude: number; address?: string | null } | null>(null)
+  const [partnerHome, setPartnerHome] = useState<{ latitude: number; longitude: number; address?: string | null } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [distance, setDistance] = useState<number | null>(null)
@@ -62,6 +65,32 @@ export function useLocation(userId: string | undefined, partnerId: string | unde
           home_address: myLocData.home_address,
         })
       }
+      
+      // Always fetch home location separately (permanent, independent from current location)
+      if (myLocData?.home_latitude && myLocData?.home_longitude) {
+        setMyHome({
+          latitude: Number(myLocData.home_latitude),
+          longitude: Number(myLocData.home_longitude),
+          address: myLocData.home_address,
+        })
+      } else {
+        // Even if no current location data, try to fetch home location
+        const { data: homeOnlyData } = await (supabase
+          .from('user_locations') as any)
+          .select('home_latitude, home_longitude, home_address')
+          .eq('user_id', userId)
+          .maybeSingle()
+        
+        if (homeOnlyData?.home_latitude && homeOnlyData?.home_longitude) {
+          setMyHome({
+            latitude: Number(homeOnlyData.home_latitude),
+            longitude: Number(homeOnlyData.home_longitude),
+            address: homeOnlyData.home_address,
+          })
+        } else {
+          setMyHome(null)
+        }
+      }
 
       // Fetch partner location if partner exists
       let partnerLocData: any = null
@@ -91,8 +120,32 @@ export function useLocation(userId: string | undefined, partnerId: string | unde
             home_longitude: data.home_longitude ? Number(data.home_longitude) : null,
             home_address: data.home_address,
           })
+        }
+        
+        // Always fetch partner home location separately (permanent, independent from current location)
+        if (data?.home_latitude && data?.home_longitude) {
+          setPartnerHome({
+            latitude: Number(data.home_latitude),
+            longitude: Number(data.home_longitude),
+            address: data.home_address,
+          })
         } else {
-          setPartnerLocation(null)
+          // Even if no current location data, try to fetch home location
+          const { data: homeOnlyData } = await (supabase
+            .from('user_locations') as any)
+            .select('home_latitude, home_longitude, home_address')
+            .eq('user_id', partnerId)
+            .maybeSingle()
+          
+          if (homeOnlyData?.home_latitude && homeOnlyData?.home_longitude) {
+            setPartnerHome({
+              latitude: Number(homeOnlyData.home_latitude),
+              longitude: Number(homeOnlyData.home_longitude),
+              address: homeOnlyData.home_address,
+            })
+          } else {
+            setPartnerHome(null)
+          }
         }
       } else {
         setPartnerLocation(null)
@@ -215,6 +268,13 @@ export function useLocation(userId: string | undefined, partnerId: string | unde
         home_longitude: longitude,
         home_address: address || null,
       } : null)
+      
+      // Update home location separately (permanent)
+      setMyHome({
+        latitude,
+        longitude,
+        address: address || null,
+      })
 
       // Recalculate distance to home
       if (myLocation) {
@@ -352,6 +412,8 @@ export function useLocation(userId: string | undefined, partnerId: string | unde
   return {
     myLocation,
     partnerLocation,
+    myHome, // Permanent home location (independent from current location)
+    partnerHome, // Permanent partner home location (independent from current location)
     distance,
     distanceToMyHome,
     distanceToPartnerHome,
