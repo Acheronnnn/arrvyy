@@ -162,5 +162,9 @@ export interface UserLocation {
   is_online: boolean;
   last_updated_at: string;
   created_at?: string;
+  // Home location fields
+  home_latitude?: number | null;
+  home_longitude?: number | null;
+  home_address?: string | null;
 }
 

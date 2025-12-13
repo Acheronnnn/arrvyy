@@ -9,6 +9,8 @@ export function useLocation(userId: string | undefined, partnerId: string | unde
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [distance, setDistance] = useState<number | null>(null)
+  const [distanceToMyHome, setDistanceToMyHome] = useState<number | null>(null)
+  const [distanceToPartnerHome, setDistanceToPartnerHome] = useState<number | null>(null)
 
   // Calculate distance between two points (Haversine formula)
   const calculateDistance = useCallback((lat1: number, lon1: number, lat2: number, lon2: number): number => {
@@ -55,6 +57,9 @@ export function useLocation(userId: string | undefined, partnerId: string | unde
           is_online: myLocData.is_online,
           last_updated_at: myLocData.last_updated_at,
           created_at: myLocData.created_at,
+          home_latitude: myLocData.home_latitude ? Number(myLocData.home_latitude) : null,
+          home_longitude: myLocData.home_longitude ? Number(myLocData.home_longitude) : null,
+          home_address: myLocData.home_address,
         })
       }
 
@@ -82,6 +87,9 @@ export function useLocation(userId: string | undefined, partnerId: string | unde
             is_online: data.is_online,
             last_updated_at: data.last_updated_at,
             created_at: data.created_at,
+            home_latitude: data.home_latitude ? Number(data.home_latitude) : null,
+            home_longitude: data.home_longitude ? Number(data.home_longitude) : null,
+            home_address: data.home_address,
           })
         } else {
           setPartnerLocation(null)
@@ -90,8 +98,9 @@ export function useLocation(userId: string | undefined, partnerId: string | unde
         setPartnerLocation(null)
       }
 
-      // Calculate distance if both locations exist
+      // Calculate distances
       if (myLocData && partnerLocData) {
+        // Distance between current locations
         const dist = calculateDistance(
           Number(myLocData.latitude),
           Number(myLocData.longitude),
@@ -99,8 +108,36 @@ export function useLocation(userId: string | undefined, partnerId: string | unde
           Number(partnerLocData.longitude)
         )
         setDistance(dist)
+
+        // Distance to my home
+        if (myLocData.home_latitude && myLocData.home_longitude) {
+          const distToMyHome = calculateDistance(
+            Number(myLocData.latitude),
+            Number(myLocData.longitude),
+            Number(myLocData.home_latitude),
+            Number(myLocData.home_longitude)
+          )
+          setDistanceToMyHome(distToMyHome)
+        } else {
+          setDistanceToMyHome(null)
+        }
+
+        // Distance to partner home
+        if (partnerLocData.home_latitude && partnerLocData.home_longitude) {
+          const distToPartnerHome = calculateDistance(
+            Number(partnerLocData.latitude),
+            Number(partnerLocData.longitude),
+            Number(partnerLocData.home_latitude),
+            Number(partnerLocData.home_longitude)
+          )
+          setDistanceToPartnerHome(distToPartnerHome)
+        } else {
+          setDistanceToPartnerHome(null)
+        }
       } else {
         setDistance(null)
+        setDistanceToMyHome(null)
+        setDistanceToPartnerHome(null)
       }
     } catch (err: any) {
       console.error('Error fetching locations:', err)
@@ -139,6 +176,9 @@ export function useLocation(userId: string | undefined, partnerId: string | unde
         address: address || null,
         is_online: true,
         last_updated_at: new Date().toISOString(),
+        home_latitude: prev?.home_latitude || null,
+        home_longitude: prev?.home_longitude || null,
+        home_address: prev?.home_address || null,
       }))
 
       // Recalculate distance
@@ -151,6 +191,47 @@ export function useLocation(userId: string | undefined, partnerId: string | unde
       setError(err.message || 'Failed to update location')
     }
   }, [userId, partnerLocation, calculateDistance])
+
+  // Set home location
+  const setHomeLocation = useCallback(async (latitude: number, longitude: number, address?: string) => {
+    if (!userId) return
+
+    try {
+      const { error } = await (supabase
+        .from('user_locations') as any)
+        .update({
+          home_latitude: latitude,
+          home_longitude: longitude,
+          home_address: address || null,
+        })
+        .eq('user_id', userId)
+
+      if (error) throw error
+
+      // Update local state
+      setMyLocation(prev => prev ? {
+        ...prev,
+        home_latitude: latitude,
+        home_longitude: longitude,
+        home_address: address || null,
+      } : null)
+
+      // Recalculate distance to home
+      if (myLocation) {
+        const dist = calculateDistance(
+          myLocation.latitude,
+          myLocation.longitude,
+          latitude,
+          longitude
+        )
+        setDistanceToMyHome(dist)
+      }
+    } catch (err: any) {
+      console.error('Error setting home location:', err)
+      setError(err.message || 'Failed to set home location')
+      throw err
+    }
+  }, [userId, myLocation, calculateDistance])
 
   // Get current location from browser
   const getCurrentLocation = useCallback((): Promise<{ latitude: number; longitude: number }> => {
@@ -272,9 +353,12 @@ export function useLocation(userId: string | undefined, partnerId: string | unde
     myLocation,
     partnerLocation,
     distance,
+    distanceToMyHome,
+    distanceToPartnerHome,
     loading,
     error,
     updateMyLocation,
+    setHomeLocation,
     getCurrentLocation,
     refreshLocations: fetchLocations,
   }
